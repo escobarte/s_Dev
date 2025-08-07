@@ -1,0 +1,45 @@
+|||||||||||||||||||||||||||||||||||||||||||||
+||||||Установка Ansible на WSL Ubuntu. ||||||
+|||||||||||||||||||||||||||||||||||||||||||||
+
+Удалили:
+Ansible из системного apt (sudo apt remove ansible -y).
+Поставили:
+Ansible через pipx:
+pipx install ansible
+Где искали бинарники:
+Использовали команды find ~/.local -name ansible и посмотрели структуру папок pipx.
+Добавили в PATH:
+/home/scusnir/.local/pipx/venvs/ansible/bin — теперь ansible доступен в любом терминале
+
+sudo apt install pipx -y
+pipx ensurepath
+pipx install ansible
+pipx list
+find ~/.local -name ansible
+
+/home/scusnir/.local/pipx/venvs/ansible/bin/ansible --version
+/home/scusnir/.local/pipx/venvs/ansible/bin/ansible -i hosts web -m ping
+export PATH="$HOME/.local/pipx/venvs/ansible/bin:$PATH" #это временноне решение для одной сессии
+ansible --version
+ansible -i hosts web -m ping
+echo 'export PATH="$HOME/.local/pipx/venvs/ansible/bin:$PATH"' >> ~/.bashrc # это на постаянку
+
+
+====================================
+======= Начинаем проект ============
+====================================
+1. Создаем директорию для работы, а также файл hosts
+
+mkdir -p /mnt/d/mcruzen/ansible-lab
+cd ansible-lab
+nano hosts
+```
+[web]
+10.100.93.4 ansible_user=scusnir ansible_ssh_private_key_file=~/.ssh/id_rsa_scusnir
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+````
+
+

@@ -1,0 +1,45 @@
+=======================================================
+-----  Kibana Installation on 10.100.93.5 ------
+=======================================================
+wget https://artifacts.elastic.co/downloads/kibana/kibana-9.0.3-amd64.deb
+shasum -a 512 kibana-9.0.3-amd64.deb
+sudo dpkg -i kibana-9.0.3-amd64.deb
+nano /etc/kibana/kibana.yml
+
+server.port: 5601
+server.host: "0.0.0.0"
+elasticsearch.hosts: ["http://10.100.93.6:9200"]
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "qwerty12345"
+pid.file: /run/kibana/kibana.pid
+
+systemctl enable kibana
+systemctl start kibana
+systemctl status kibana
+curl -v -u elastic:*b7u1ak*HqfpIklumVfb http://10.100.93.6:9200/
+***
+journalctl -u kibana -f
+
+
+
+!!!!!!!!!!Installing ELK+Filebeat.!!!!!!!!!
+
+1. Major issue that i meat was to connect Elasticearch to Kibana.
+Problem was in Token. I tried to connect via token, but it failed. 
+Workaround was to connect via Login and Pass, and what i did:
+A) Server Elasticearch:
+curl -XPOST -u elastic:*b7u1ak*HqfpIklumVfb "http://10.100.93.6:9200/_security/user/kibana_system/_password" -H "Content-Type: application/json" -d'
+{
+  "password" : "qwerty12345"
+}
+'
+B) Added user login and password to kibana.yml
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "qwerty12345"        
+
+
+Логин и пароль
+Для авторизации Kibana по умолчанию нужны именно пользователи Elasticsearch, а не токен!
+Вводишь:
+Username: elastic
+Password: *b7u1ak*HqfpIklumVfb   

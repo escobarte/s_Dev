@@ -1,0 +1,83 @@
+					Step 1: LVM Preparing
+fdisk /dev/sdb
+n, p, 1, Enter, Enter, t, 8e 	//The partition table has been altered.
+pvcreate /dev/sdb1 				//  Physical volume "/dev/sdb1" successfully created.
+vgcreate vg_app2 /dev/sdb1		//  Volume group "vp_app2" successfully created
+	// I did an error in name, so I rename it [vgrename vp_app2 vg_app2, vgs]
+lvcreate -n www -L 5G vg_app2   //  Logical volume "www" created.
+mkfs.ext4 /dev/vg_app2/www		// Creating filesystems
+mkdir -p /var/www
+echo '/dev/vg_app2/www /var/www ext4 defaults 2 0' | sudo tee -a /etc/fstab //For mounting at machine boot
+mount -a
+sysmtectl daemon-reload
+
+					Step 2: Dependencies & Laravel
+	// PHP and Modules
+sudo apt install php php-cli php-mbstring php-xml php-bcmath php-curl php-zip php-mysql unzip curl git -y \
+&& echo -e "\nInstalled Successfully:\n" && dpkg -l | grep -E 'php|unzip|curl|git' \
+|| echo -e "\nIssues with installation" 
+		// Composer
+cd /tmp/
+curl -sS https://getcomposer.org/installer | php
+ls -l 							//-rwxr-xr-x 1 root root 3125568 Jun 12 15:45 composer.phar
+mv composer.phar /usr/local/bin/composer
+composer --version
+	// Laravel
+cd /var/www
+
+sudo composer create-project laravel/laravel app02
+sudo chown -R www-data:www-data /var/www/app02
+Create file	// VirtualHost .conf
+sudo nano /etc/apache2/sites-available/app02.conf
+!!!!!!!		///add this!!!!!!!!!
+<VirtualHost *:80>
+    ServerName app02.local
+    DocumentRoot /var/www/app02/public
+
+    <Directory /var/www/app02/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/app02_error.log
+    CustomLog ${APACHE_LOG_DIR}/app02_access.log combined
+</VirtualHost>
+		///
+a2dissite 000-default.conf			//Deactivating: 000-default.conf
+a2ensite app02.conf 				// Enabling site app02.
+a2enmod rewrite						// Enabling module rewrite.
+systemctl restart apache2
+systemctl reload apache2
+		/// Schimbam directoriul implicit pentru apache2
+ls -l /etc/apache2/sites-available/  // app02.conf 
+apache2ctl -S 						// sites-enebled/000-default {to deactivate and activate app02}
+a2dissite 000-default.conf			//Site 000-default disabled.
+a2ensite app02.conf					//Site app02 already enabled
+systemctl reload apache2
+		//Connecting Laravel to DB 10.100.93.8
+nano /var/www/app02/.env
+DB_CONNECTION=mysql
+		DB_HOST=10.100.93.8
+		DB_PORT=3306
+		DB_DATABASE=laravel
+		DB_USERNAME=laravel_user_app01
+		DB_PASSWORD=1323
+	####// Adding user from app02 in DB with host on DB01 Server
+mysql
+	CREATE USER 'laravel_user'@'10.100.93.6' IDENTIFIED BY '1323';
+	GRANT ALL PRIVILEGES ON laravel.* TO 'laravel_user'@'10.100.93.6';
+	FLLUSH PRIVILEGES;
+	EXIT;
+systemctl restart mysql
+	
+	######// Testig DB connectivity
+apt install mysql-client -y
+mysql -h 10.100.93.8 -u laravel_user -p  // you should see db opened
+
+##/// All done succesfully ///##
+
+/// If you do some changes in DB access, like user change or other, do next ///
+cd /var/www/app01
+sudo php artisan config:clear
+sudo php artisan config:cache
+sudo php artisan migrate

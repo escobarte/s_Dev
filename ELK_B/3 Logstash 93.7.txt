@@ -1,0 +1,57 @@
+=======================================================
+-----  Logstash Installation on 10.100.93.7 ------
+=======================================================
+------------------------------
+>>> 0. LVM Prepare <<<
+------------------------------
+The same as in 1st Elasticsearch doc file
+
+------------------------------
+>>> 1. Install <<<
+------------------------------
+curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch |sudo gpg --dearmor -o /usr/share/keyrings/elastic.gpg
+echo "deb [signed-by=/usr/share/keyrings/elastic.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt update
+sudo apt install logstash
+systemctl enable logstash
+systemctl start logstash
+systemctl status logstash
+
+------------------------------
+>>> 2. Config (using grok) <<<
+------------------------------
+⚠️❗📝 Important information 📝❗⚠️
+In /etc/logstash/conf.d/ ❗Can not be 2 .conf files ❗
+
+nano /etc/logstash/conf.d/accee-log.conf
+input {
+    beats {
+        port => "5044"
+    }
+}
+filter {
+    grok {
+        match => { "message" => "%{COMBINEDAPACHELOG}" }
+    }
+    geoip {
+        source => "clientip"
+    }
+}
+output {
+    elasticsearch {
+        hosts => ["http://10.100.93.6:9200"]
+        user => "elastic"
+        password => "*b7u1ak*HqfpIklumVfb"
+        index => "access-log-%{+YYYY.MM.dd}"
+        manage_template => false
+    }
+}
+
+
+#Checking with curl
+curl -u elastic:*b7u1ak*HqfpIklumVfb http://10.100.93.6:9200/_cat/indices?v
+
+3. Перезапусти сервисы
+
+sudo systemctl restart logstash
+sudo systemctl restart filebeat

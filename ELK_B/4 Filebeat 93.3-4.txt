@@ -1,0 +1,43 @@
+=======================================================
+-----  Filebeat Installation on 10.100.93.3-4 ------
+=======================================================
+
+-------------------------------
+>>> 1. Installation Process <<<
+-------------------------------
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+sudo apt-get install apt-transport-https
+echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+sudo apt update
+sudo apt install filebeat -y
+
+-------------------------------
+>>> 2. Configuration file <<<
+-------------------------------
+sudo nano /etc/filebeat/filebeat.yml
+
+# ============================== Filebeat inputs ===============================
+filebeat.inputs:
+# filestream is an input for collecting log messages from files.
+- type: filestream
+  # Unique ID among all inputs, an ID is required.
+  id: my-filestream-id
+  # Change to true to enable this input configuration.
+  enabled: true
+  # Paths that should be crawled and fetched. Glob based paths.
+  paths:
+    - /var/log/nginx/*.log
+# ------------------------------ Logstash Output -------------------------------
+output.logstash:
+  # The Logstash hosts
+  hosts: ["10.100.93.7:5044"]
+
+
+filebeat test config => ok
+filebeat test output => Result
+
+
+3. Перезапусти сервисы
+
+sudo systemctl restart logstash
+sudo systemctl restart filebeat

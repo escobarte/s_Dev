@@ -1,0 +1,24 @@
+geoip2 /var/lib/GeoIP/GeoLite2-City.mmdb {
+    $geoip2_city         city names en;
+    $geoip2_region       subdivisions 0 names en;
+    $geoip2_postal_code  postal code;
+    $geoip2_latitude     location latitude;
+    $geoip2_longitude    location longitude;
+    $geoip2_timezone     location time_zone;
+}
+
+geoip2 /var/lib/GeoIP/GeoLite2-ASN.mmdb {
+    $geoip2_asn autonomous_system_number;
+    $geoip2_isp autonomous_system_organization;
+}
+
+location / {
+    add_header X-City       $geoip2_city;
+    add_header X-Region     $geoip2_region;
+    add_header X-Postal     $geoip2_postal_code;
+    add_header X-Latitude   $geoip2_latitude;
+    add_header X-Longitude  $geoip2_longitude;
+    add_header X-Timezone   $geoip2_timezone;
+    add_header X-ASN        $geoip2_asn;
+    add_header X-ISP        $geoip2_isp;
+}

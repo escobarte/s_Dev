@@ -1,0 +1,10 @@
+nginx_files_to_copy:
+  - { src: "/mnt/d/s_dev_ops/ansible-lab/Nginx_Legacy_Conf/fastcgi_params", dest: "/etc/nginx/fastcgi_params" }
+  - { src: "/mnt/d/s_dev_ops/ansible-lab/Nginx_Legacy_Conf/mime.types", dest: "/etc/nginx/mime.types" }
+  - { src: "/mnt/d/s_dev_ops/ansible-lab/Nginx_Legacy_Conf/nginx.conf", dest: "/etc/nginx/nginx.conf" }
+  - { src: "/mnt/d/s_dev_ops/ansible-lab/Nginx_Legacy_Conf/proxy_params", dest: "/etc/nginx/proxy_params" }
+  - { src: "/mnt/d/s_dev_ops/ansible-lab/Nginx_Legacy_Conf/scgi_params", dest: "/etc/nginx/scgi_params" }
+  - { src: "/mnt/d/s_dev_ops/ansible-lab/Nginx_Legacy_Conf/sites-available/", dest: "/etc/nginx/sites-available/" }
+  - { src: "/mnt/d/s_dev_ops/ansible-lab/Nginx_Legacy_Conf/sites-enabled/", dest: "/etc/nginx/sites-enabled/" }
+  - { src: "/mnt/d/s_dev_ops/ansible-lab/Nginx_Legacy_Conf/snippets/", dest: "/etc/nginx/snippets/" }
+  - { src: "/mnt/d/s_dev_ops/ansible-lab/Nginx_Legacy_Conf/uwsgi_params", dest: "/etc/nginx/uwsgi_params" }

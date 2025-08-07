@@ -1,0 +1,9 @@
+compose ll
+
+docker-compose.yml
+nginx
+php
+www
+
+ volumes: ./www: /var/www 
+ Прокидываем локальную папаку котороая у меня находится в /tmp/dockerpractice/docker-compose/www --> в контейнер.

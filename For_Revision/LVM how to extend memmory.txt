@@ -1,0 +1,31 @@
+Как увеличить место.
+sdb              8:16   0   30G  0 disk
+├─sdb1           8:17   0    5G  0 part
+│ └─DNS-lv     252:1    0    3G  0 lvm  /mnt/dns
+├─sdb2           8:18   0    6G  0 part
+│ └─DATA-psql  252:0    0    5G  0 lvm  /var/lib/postgresql  <---- Здесь уже занято 93% (/dev/mapper/DATA-psql              ext4   4.9G  4.3G  351M  93% /var/lib/postgresql)
+
+! Важно, чтобы было место и была возможность создать /sdb 
+
+parted /dev/sdb print free
+fdisk /dev/sdb				#здесь ты создаёшь новый партицию, в моем случае это было снача ext, потом уже sdb5
+partprobe
+pvcreate /dev/sdb5
+vgextend DATA /dev/sdb5
+lvextend -l +100%FREE /dev/DATA/psql
+resize2fs /dev/mapper/DATA-psql
+df -hT
+lsblk
+df -hT | grep psql
+
+######### Результат 
+/dev/mapper/DATA-psql              ext4    11G  4.3G  5.7G  43% /var/lib/postgresql
+
+sdb              8:16   0   30G  0 disk
+├─sdb1           8:17   0    5G  0 part
+│ └─DNS-lv     252:1    0    3G  0 lvm  /mnt/dns
+├─sdb2           8:18   0    6G  0 part
+│ └─DATA-psql  252:0    0 10.6G  0 lvm  /var/lib/postgresql
+├─sdb3           8:19   0    1K  0 part
+└─sdb5           8:21   0  4.7G  0 part
+  └─DATA-psql  252:0    0 10.6G  0 lvm  /var/lib/postgresql

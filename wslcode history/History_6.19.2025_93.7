@@ -1,0 +1,164 @@
+    1  shutdown -h nw
+    2  shutdown -h now
+    3  netplan apply
+    4  cd
+    5  hostnamectl set-hostname 01DSI-Test01
+    6  nano /etc/hostname
+    7  nano /etc/cloud/cloud.cfg
+    8  nano /etc/netplan/50-cloud-init.yaml
+    9  netplan apply
+   10  reboot
+   11  apt-get update && apt-get upgrade -y
+   12  apt-get dist-upgrade -y
+   13  do-release-upgrade
+   14  reboot
+   15  do-release-upgrade
+   16  reboot
+   17  nano /etc/cloud/cloud.cfg
+   18  hostnamectl set-hostname 01DSITest01
+   19  reboot
+   20  hostnamectl set-hostname UbuntuTemplate
+   21  nano /etc/netplan/50-cloud-init.yaml
+   22  netplan apply
+   23  reboot
+   24  lsblk
+   25  nano /etc/netplan/50-cloud-init.yaml
+   26  netplan apply
+   27  nano /etc/hostname
+   28  apt-get update
+   29  apt-get upgrade
+   30  reboot
+   31  nano /etc/hostname
+   32  reboot
+   33  nano /etc/hostname
+   34  hostnamectl set-hostname Template-Ubuntu20
+   35  nano /etc/cloud/cloud.cfg
+   36  reboot
+   37  ifconfig
+   38  ping 8.8.8.8
+   39  apt-get update
+   40  apt-get upgrade
+   41  reboot
+   42  ifconfig
+   43  nano /etc/netplan/
+   44  nano /etc/netplan/50-cloud-init.yaml
+   45  nano /etc/network/interfaces
+   46  reboot
+   47  ip a
+   48  cat /etc/*release
+   49  history
+   50  w
+   51  ifconfig
+   52  apt-get update
+   53  apt-get upgrade
+   54  reboot
+   55  cat /etc/hosts
+   56  ifconfig
+   57  cat /etc/hosts
+   58  nano /etc/hosts
+   59  apt-get update
+   60  apt-get upgrade
+   61  reboot
+   62  top
+   63  apt-get update
+   64  top
+   65  apt-get upgrade
+   66  reboot
+   67  systemctl stop multipaths.service
+   68  systemctl stop multipathd.service
+   69  systemctl disable multipathd.service
+   70  apt-get update
+   71  apt-get upgrade
+   72  reboot
+   73  apt-get update
+   74  apt-get upgrade
+   75  reboot
+   76  apt-get upgrade
+   77  apt-get update
+   78  apt-get upgrade
+   79  shutdown -h now
+   80  apt-get update
+   81  apt-get upgrade
+   82  reboot
+   83  reboot
+   84  reboot
+   85  shutdown -h now
+   86  apt-get update
+   87  apt-get upgrade
+   88  reboot
+   89  apt-get update
+   90  apt-get upgrade
+   91  reboot
+   92  reboot
+   93  apt install openssh-server -y
+   94  systemctl status ssh
+   95  ip a
+   96  ufw status
+   97  apt update && apt upgrade -y
+   98  apt dist-upgrade -y
+   99  apt autoremove -y
+  100  apt install update-manager-core
+  101  ls /etc/update-manager/release-upgrades
+  102  ls -l /etc/update-manager/release-upgrades
+  103  nano /etc/update-manager/release-upgrades
+  104  do-release-upgrade
+  105  reboot
+  106  sudo apt update
+  107  cat /etc/os-release
+  108  hostname
+  109  exit
+  110  apt update
+  111  apt updated
+  112  apt upgrade
+  113  lsb_release -a
+  114  clear
+  115  lsblk
+  116  fdisk /dev/sdb
+  117  n
+  118  df -ht
+  119  df -hT
+  120  sudo fdsik -l /dev/sda
+  121  sudo fdisk -l /dev/sda
+  122  sudo fdisk /dev/sda
+  123  sudo swapoff -a
+  124  sudo fdisk /dev/sda
+  125  sudo swapon --show
+  126  sudo fdisk /dev/sda
+  127  lsblk
+  128  sudo pvcreate /dev/sda5
+  129  sudo vgcreate vg_app03
+  130  sudo vgcreate vg_app03 /dev/sda5
+  131  sudo lvcreate -n www -L 5G vg_app03
+  132  sudo mkfs.ext4 /dev/vg_app03/www
+  133  sudo mkdir -p /var/www
+  134  echo '/dev/vg_app03/www /var/www ext4 defaults 0 2' | sudo tee -a /etc/fstab
+  135  sudo mount -a
+  136  systemctl daemon-reload
+  137  lsblk
+  138  sudo apt install php php-cli php-mbstring php-xml php-bcmath php-curl php-zip php-mysql unzip curl git -y && echo -e "\nInstalled Successfully:\n" && dpkg -l | grep -E 'php|unzip|curl|git' || echo -e "\nIssues with installation"
+  139  cd /tmp/
+  140  curl -sS https://getcomposer.org/installer | php
+  141  ls -l
+  142  mv composer.phar /usr/local/bin/composer
+  143  ls /usr/local/bin/composer
+  144  ls -l /usr/local/bin/composer
+  145  composer --version
+  146  cd /var/www
+  147  sudo composer create-project laravel/laravel app03
+  148  sudo chown -R www-data:www-data /var/www/app03/
+  149  sudo nano /etc/apache2/sites-available/app03.conf
+  150  sudo a2ensite app03.conf
+  151  a2enmod rewrite
+  152  systemctl restart apache2
+  153  ls -l /etc/apache2/sites-available/
+  154  apache2ctl -S
+  155  a2dissite 000-default.conf
+  156  a2ensite app03.conf
+  157  systemctl reload apache2
+  158  sudo nano /var/www/app03/.env
+  159  systemctl rstart apache2
+  160  systemctl restart apache2
+  161  sudo nano /var/www/app03/.env
+  162  sudo nano /var/www/app01/resources/views/welcome.blade.php
+  163  sudo nano /var/www/app03/resources/views/welcome.blade.php
+  164  history

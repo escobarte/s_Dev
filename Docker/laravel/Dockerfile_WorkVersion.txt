@@ -1,0 +1,59 @@
+# Используем Ubuntu как базу
+FROM ubuntu:latest
+ENV DEBIAN_FRONTEND=noninteractive
+# Устанавливаем зависимости
+RUN apt update && apt install -y \
+    apache2 \
+    php \
+    php-cli \
+    php-mbstring \
+    php-xml \
+    php-bcmath \
+    php-curl \
+    php-zip \
+    php-mysql \
+    unzip \
+    curl \
+    git \
+    nano \
+    systemctl
+
+RUN apt update && apt upgrade -y
+
+# Устанавливаем Composer
+RUN curl -sS https://getcomposer.org/installer | php && \
+    mv composer.phar /usr/local/bin/composer
+
+# Создаем директорию для Laravel
+WORKDIR /var/www
+
+# Устанавливаем Laravel (можно заменить на COPY существующего проекта)
+RUN composer create-project laravel/laravel app05
+
+# Настраиваем .env для подключения к БД
+RUN sed -i 's/^DB_CONNECTION=sqlite/DB_CONNECTION=mysql/' /var/www/app05/.env && \
+    sed -i 's/^# DB_HOST=127.0.0.1/DB_HOST=10.100.93.8/' /var/www/app05/.env && \
+    sed -i 's/^# DB_PORT=3306/DB_PORT=3306/' /var/www/app05/.env && \
+    sed -i 's/^# DB_DATABASE=laravel/DB_DATABASE=laravel/' /var/www/app05/.env && \
+    sed -i 's/^# DB_USERNAME=root/DB_USERNAME=laravel_user_app05/' /var/www/app05/.env && \
+    sed -i 's/^# DB_PASSWORD=/DB_PASSWORD=1323/' /var/www/app05/.env
+
+# Настраиваем владельца файлов
+RUN chown -R www-data:www-data /var/www/app05
+
+# Копируем конфиг сайта
+COPY app05.conf /etc/apache2/sites-available/app05.conf
+
+# Активируем сайт и модуль rewrite
+RUN a2dissite 000-default.conf && \
+    a2ensite app05.conf && \
+    a2enmod rewrite
+
+# Открываем порт 80
+EXPOSE 80
+
+# Очистка и кеширование конфигов
+RUN cd /var/www/app05 && php artisan config:clear && php artisan config:cache
+
+# Запускаем Apache в foreground
+CMD ["apachectl", "-D", "FOREGROUND"]

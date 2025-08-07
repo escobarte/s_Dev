@@ -1,0 +1,6 @@
+Crontab How To
+
+crontab -e #set the schedule
+grep CRON /var/log/syslog/ | tail -n 35 #check logs about cron 
+crontab -l #to read the file
+systemctl status/stop/start/enable cron

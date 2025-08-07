@@ -1,0 +1,40 @@
+Немного теории:Разница между CMD и ENTRYPOINT
+CMD это сразу исполняемя команда
+ENTRYPOINT можно использовать вместе с CMD, также можно задавать аргументы при команде RUN.
+^Docker Compose = инструмент для оркестрации нескольких контейнеров, позваляет запускать несколько контейнерова как один сервис (app+db+cache)
+🔹 Best practice в DevOps:
+Используешь multistage build в Dockerfile → получаешь чистый, минимальный production-образ.
+В docker-compose.yml поднимаешь этот образ + другие сервисы.
+
+🔍 3. Ключевые отличия
+Docker Multistage 							|			Build	Docker Compose
+Оптимизирует размер и безопасность образа				|			Управляет запуском нескольких контейнеров
+
+Используется в Dockerfile 						|			Используется как docker-compose.yml
+Применяется при сборке			 				|			Применяется при деплое/разработке
+Например: build -> production stage					|		 	Например: app + db + redis
+
+🔴 Docker Multistage – оптимизация образа.
+🔵 Docker Compose – оркестрация сервисов.
+
+
+Some Commands from Docker Benging
+sudo vim /etc/groups
+sudo vim /ets/users ?
+sudo usermod -aG docker ubuntu
+id 'usename' 
+id tenantadmin
+
+
+Docker commands
+docker images - list localy
+docker run - create new container
+docker ps - list running
+docker ps -a - list all containers
+docker exec - execute commands on containers
+docker stop/start/restart/rm
+docker rmi - remove
+docker inspect - details of container & image
+docker logs <id> - logs for 
+ps -ef | grep nginx (container is a process running from a directory)
+docker exec -it Prx01 /bin/bash

@@ -1,0 +1,84 @@
+🛠️ 🛠️ 🛠️Предварительные требования 🛠️ 🛠️ 🛠️
+📌 📌 📌 Promtail ставится на каждый сервер, где лежит access.log.📌 📌 📌 
+Уже работает Loki в docker-compose (ты его уже поднял)
+Уже есть Grafana и Prometheus
+NGINX access.log реально пишется (есть файлы логов на prx-серверах)
+Steps:
+1. Установить Promtail на каждый сервер, где нужны логи
+Promtail будет "читать" твой /var/log/nginx/access.log и отправлять строчки в Loki
+2. Настроить конфиг Promtail
+Указать путь к access.log
+Указать адрес Loki (куда отправлять)
+Прописать label'ы (например, server, role, hostname — для фильтрации в Grafana)
+3. Открыть доступ к Loki (порт 3100) для prx-серверов
+Проверить если нужно
+4. Проверить, что Promtail пишет в Loki
+Через веб-интерфейс Grafana → Data Sources → Explore (выбрать Loki)
+5. Создать дашборд в Grafana
+Добавить панели для поиска/фильтрации по access.log (например, искать 500 ошибки, или фильтровать по URI/методу/response code)
+
+🛠️Step-1: Find Loki version 
+docker ps
+	(a712a476e406   grafana/loki:latest      "/usr/bin/loki -conf…"   2 days ago   Up 2 days       0.0.0.0:3100->3100/tcp, [::]:3100->3100/tcp   loki)
+docker exec a712a476e406 /usr/bin/loki --version
+	loki, version 3.5.1
+	
+##### Temp code version
+ 1023  14/07/25 10:37:34 cd /tmp/
+ 1024  14/07/25 10:37:34 wget https://github.com/grafana/loki/releases/download/v3.5.2/promtail-linux-amd64.zip
+ 1025  14/07/25 10:38:38 ls
+ 1026  14/07/25 10:38:46 unzip promtail-linux-amd64.zip
+ 1027  14/07/25 10:38:50 apt install unzip
+ 1028  14/07/25 10:38:55 unzip promtail-linux-amd64.zip
+ 1029  14/07/25 10:38:57 ls
+ 1030  14/07/25 10:39:14 chmod a+X promtail-linux-amd64
+ 1031  14/07/25 10:39:31 cp promtail-linux-amd64 /usr/local/bin/promtail
+ 1032  14/07/25 10:39:37 promtail --version
+ 1034  14/07/25 11:00:04 nano /etc/promtail.yaml
+ server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /var/log/promtail-positions.yaml
+
+clients:
+  - url: http://10.100.93.5:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: nginx-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx-access
+          host: prx01
+          __path__: /var/log/nginx/access.log
+ 1035  14/07/25 11:00:46 promtail -config.file /etc/promtail.yaml
+ 1036  14/07/25 11:01:10 nano /etc/systemd/system/promtail.service
+[Unit]
+Description=Promtail service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/promtail -config.file /etc/promtail.yaml
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+ 1037  14/07/25 11:01:28 systemctl daemon-reload
+ 1038  14/07/25 11:01:36 systemctl enable --now promtail
+ 1039  14/07/25 11:01:46 systemctl status promtail
+ 1040  14/07/25 11:01:57 journalctl -u promtail -n 50 --no-pager
+ 
+ 
+💡💡💡 Добавляем Data Source 💡💡💡
+Web: Grafana/Datasource
++ Add New Datasource
+URL: http://10.100.93.5:3100
+Save+Test
+
+🛠️🛠️🛠️ Test 🛠️🛠️🛠️
+Explorer: Loki
+Querry: Job : nginx-access

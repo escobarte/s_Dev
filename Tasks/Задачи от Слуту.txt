@@ -1,0 +1,121 @@
+1. Linux:
+- disks partitions, format, create partition, create LVM (PV/VG/LV) mount point
+- Creating NFS, to create Common Shared for 3  VMS
+- Configuring FTP
+- Local users permissions or Access rights of local users
+- Configuring a LAMP server Linux / apache / mysql / php, 
+	- multiplying the same application at the virtual machine level
+- Configuring nginx (reverse proxy) as failover + Load balancer
+	- For those 2 vms (i.e. nginx should have the role of balancing the application and also if one of the proxies dies, the traffic
+should automatically switch to another and all traffic should be directly on https )
+- certbot how to generate letsnecrypt certificates
+
+2. Network
+- TCP/UDP and how they works
+- http / https what is and how it works and to configure it on nginx
+- NAT / DNAT / SNAT 
+- Iptables (something simple allowing your IP and I have a private one to be allowed for port 80 / 443)
+- Routes
+- How to configure an interface on linux (change ip / NS)
+
+- About DNS How DNS works, About namespaces, All types of DNS records and what each one does
+
+
+##########################################
+More after this
+##########################################
+Then we will move on to monitoring / logging / collection / backups / scripting
+1. We have a procedure for enrolling virtual machines in FREE IPA, you will enroll them and you will only connect with your user
+2. you will add them in zabbix and configure
+3. RSYSLOG how to collect logs and throw them on another vm
+4 BACKUP how to make a script and copy some files and also throw them on an NFS something
+5 to build an ELK or OpenSearch, throwing access logs in this ELK but also to be parsed nicely
+6. Gitlab, to configure a runner and through this runner to configure some deployment pipeline
+7. Gitlab, the same application to containerize it throw the image on the registry and
+already to deploy it all on a vm
+8 to try the logs from the containers to throw them in elasticsearch or opensearch
+
+Ethernet adapter Ethernet:
+
+   Connection-specific DNS Suffix  . :
+   Link-local IPv6 Address . . . . . : fe80::30c3:1c45:2241:88e8%11
+   IPv4 Address. . . . . . . . . . . : 172.29.31.24
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 172.29.31.1
+   
+eu fac:
++1. Prin Iptables configurarea pe Proxy (1,2)
++1.1 SSH doar peantru subretea 172.28.31.16/28 ( SAS )
++1.2 pentru ambele proxy las doar 80 si 443 port
++1.3 instalez https pentru VIP 93.2 (self-signed sau let's encrypt?)
++	Настройка HTTPS (Nginx + Let's Encrypt)
++1.4 DNS
+######################################################
+6/19 2:37 PM
+
++1.App03 поднять Zabbix
+Изначально:
+Zabbix выбираешь через Apache
+1.1 Resize /root +20GB и после Deploy
++1.1.1 Освободить место которое было занято
++1.1.2 Resize /root +20GB
++1.1.1 Deploy Zabbix
+
++2.DB01 
+2.1 Создать 1 партицию LVM "DATA-mysql"
+2.2 Создать 1 партицию LVM "DATA-postgresql"
+2.3 Установить: mariadb 11.4 TLS or 11.8 TLS (recommended by zabbix) 
+2.4 Установить postgresql 16
+
++3. После добавить мои 5 хостов в Zabbix для мониторинга
+
+
+Сейчас у меня вот такая инфраструктура, и всё работает. 
+Теперь мне нужно
+1. поставиь https
+2. для proxy закрыть весь трафик и разрешить только 80/443 
+3. ssh только для Departmen SAS (как это узнать)
+4. сделать Тюнинг для VM ( узнать про оптимизации ubuntu ) 
+
+
+
+1.5 Добавить методы балансироваки:(round robin, least connection, ip hash, least time)
+2. Tuning VM-muri
+
+1. LAMP / (LNMP/LEMP) - LINUX желательно Ubuntu 22/24 LTS, Apache любой тип веб сервиса, MYSQL/POSTGRE любой тип баз данных, PHP.
+Устновка и настройка желательно 2х виртуалок. На первую деплоишь любую саммую простую веб аппликацию, на вторую Nginx как reverse proxy.
+1.1 Boot process, systemd, journald
+Команды shell (awk, sed, xargs, find, grep, cut)
+Management of usage and permissions
++Управление процессами и сервисами (ps, top, systemctl, etc..)
++Настройки сети (ip, netplan, nmcli, ss, iptables, etc..)
++Настройка DNS, NTP, SSH
+Мониторинг ресурсов (CPU, RAM, disk I/O, load average, etc..)
++Управление логами (journalctl, rsyslog, logrotate)
++Apt, yum, dnf, snap
+Компилирование и установка из ресурсов
+Partition and mount
+LVM, ext4, xfs, btrfs, zfs
+Permissions, ACL, chroot
+Security
+sudo, ufw, iptables, fail2ban
+Certifcates, SSL, onpenssl
+Scritpting
+Back up and restore.
+
+2. Nginx нужно установить из source code и чтобы имели модули modesecurity and geoip2
+
+3. Кластеризация баз данных MYSQL/POSTGRE 
+
+4. Monitoring in databases (top/htop) as a services.
+4.1 Zabbix - deploy from scratch, adding hosts on that server and adding tempaltes for ajustment
+4.2 Grafana / Promehteu  - the same
+
+5. LOG - rsyslog is more simple, ELK stack / opensearch stack
+5.1 To create and config a stack from a scratch, and send logs from Nginx in ELK, where it will be posted beautifull and storaged
+
+6. Docker -  create, asamble an image, push pull on VM
+6.1 To create docker from point 1
+
+7. GIT - поднять и установить, для того чтобы понять как он работает, практика с репозиториями, брэнчи, комиты CI/CD
+Azure DevOps

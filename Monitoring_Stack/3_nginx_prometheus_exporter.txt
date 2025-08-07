@@ -1,0 +1,64 @@
+⚠️⚠️⚠️⚠️ things done here was for server 93.4 PRX (slave)⚠️⚠️⚠️⚠️
+cat /etc/nginx/conf.d/nginx_status_slave.conf
+server {
+        listen 81;
+        server_name nginx_status_slave;
+
+        location /nginx_status_slave {
+                stub_status;
+                allow 127.0.0.1;
+                allow 10.100.93.5; #Prometheus Path
+                deny all;
+        }
+}
+nginx -t
+systemctl restart nginx
+curl http://127.0.0.1:81/nginx_status_slave
+
+
+
+
+
+
+wget https://github.com/nginx/nginx-prometheus-exporter/releases/download/v1.4.2/nginx-prometheus-exporter_1.4.2_linux_amd64.tar.gz
+tar -xzvf nginx-prometheus-exporter_1.4.2_linux_amd64.tar.gz
+mv nginx-prometheus-exporter /usr/local/bin/
+sudo useradd --system --no-create-home --shell /bin/false nginx-exporter
+nano /etc/systemd/system/nginx-exporter.service
+	[Unit]
+	Description=nginx-prometheus-exporter
+	After=network.target
+
+	[Service]
+	User=root
+	ExecStart=/usr/local/bin/nginx-prometheus-exporter -nginx.scrape-uri http://127.0.0.1:81/nginx_status_slave
+	Restart=on-failure
+
+	[Install]
+	WantedBy=multi-user.target
+systemctl daemon-reload
+systemctl enable nginx-exporter.service
+systemctl start nginx-exporter.service
+systemctl status nginx-exporter.service
+
+iptables -A INPUT -p tcp -s 10.100.93.5 --dport 9113 -j ACCEPT
+
+curl http://127.0.0.1:9113/metrics
+curl http://10.100.93.4:9113/metrics
+
+>>> ❗❗❗ Add to /mnt/prometheus_data/prometheus.yml  ❗❗❗ <<<<
+# Job, for nginx_exporter
+  - job_name: 'nginx_exporter'
+    static_configs:
+     - targets:
+          - '10.100.93.3:9113'
+          - '10.100.93.4:9113'
+		  
+	
+# Verify metrics availability from Prometheus server
+curl -v http://10.100.93.4:9113/metrics | grep cpu
+
+❗❗❗ Restart Prometheus docker ❗❗❗
+cd /opt/monitoring-stack 
+docker composer restart prometheus 
+wathc -n2 docker ps

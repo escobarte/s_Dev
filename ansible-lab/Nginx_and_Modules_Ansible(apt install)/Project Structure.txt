@@ -1,0 +1,35 @@
+Nginx_and_Modules_Ansible/
+│
+├── site.yml   							 # Главный playbook, он вызывает роли
+├── prx_hosts.yml 						 # Inventory File
+├── laravel.lab.local.conf.yml         	 # Config /sites-available  
+└── roles/
+     ├── nginx_install/
+     │     └── tasks/
+     │           └── main.yml
+     ├── modsecurity_install/
+     │     └── tasks/
+     │           └── main.yml
+     ├── geoip2_install/
+     │     └── tasks/
+     │           └── main.yml
+     └── nginx_configure/
+           └── tasks/
+                 └── main.yml
+
+----------------------------------------------------------------------------------
+Commands
+
+ansible-playbook -i prx_hosts.yml web.yml --syntax-check 	#To verify sintax errors or othe problems
+
+ansible-playbook -i prx_hosts.yml web.yml -C
+
+ansible-playbook -i  prx_hosts.yml site.yml	#Run Playbook "site.yml" on hosts described in "prx_hosts.yml"
+
+ansible-playbook -i  prx_hosts.yml site.yml -vv #Debug, 3 level of verbousity (Включает "очень подробный" (very verbose) режим вывода — будет выводиться больше информации о процессе выполнения )
+
+ansible-playbook -i prx_hosts.yml site.yml -С	#Check mode, dry run (режим проверки, симулирует выполнения всех задач playbook, что бы изменилось, если бы ты запустил это
+
+ansible-lint site.yml 				#To verify the playbook in detailed view
+				 
+ansible-playbook apache.yml --check 		#To verify the playbook with -check flag

@@ -1,0 +1,13 @@
+#in directory /tmp/dockerpjocets/njinx
+
+docker build -t njinx .
+iptables -A INPUT -p tcp -m multiport --dports 7080 -j ACCEPT #Added rule in IPTABLES
+docker run -d -p 7080:80 njinx
+docker inspect c5a3555dcc40
+	IP adress = 172.17.0.3
+curl 172.17.0.3 #Exit to our index
+
+docker exec -it c5a3555dcc4 /bin/bash
+cd /etc/nginx ... 
+
+

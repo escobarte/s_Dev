@@ -1,0 +1,100 @@
+ШАГ 1. Установить зависимости для сборки geoip2 модуля
+
+sudo apt update
+sudo apt install git gcc make libmaxminddb0 libmaxminddb-dev mmdb-bin build-essential
+
+ШАГ 2. Скачать исходники nginx твоей версии (1.24.0)
+
+cd /usr/local/src
+sudo wget http://nginx.org/download/nginx-1.24.0.tar.gz
+sudo tar -xzvf nginx-1.24.0.tar.gz
+cd nginx-1.24.0
+
+///В директории /usr/local/src/nginx-1.24.0 должны появиться исходники nginx.///
+
+ШАГ 3. Скачать модуль ngx_http_geoip2_module
+
+sudo git clone https://github.com/leev/ngx_http_geoip2_module.git
+ls -l ngx_http_geoip2_module
+
+ШАГ 4. Собрать dynamic module geoip2
+sudo apt install libpcre3 libpcre3-dev
+sudo apt install zlib1g zlib1g-dev
+sudo ./configure --with-compat --add-dynamic-module=./ngx_http_geoip2_module
+sudo make modules
+ls -lh objs/ngx_http_geoip2_module.so
+4.1 Скопировать модуль в папку модулей nginx
+sudo cp objs/ngx_http_geoip2_module.so /usr/lib/nginx/modules/
+
+ШАГ 7. Получить токен и скачать базы GeoIP2 с MaxMind
+My Account → Manage License Keys → "Generate New License Key"
+
+### db
+
+---------------------------------------------
+
+---------------------------------------------
+
+7.1 Создай конфиг для geoipupdate
+sudo nano /etc/GeoIP.conf
+
+ШАГ 8. Скачать базы GeoIP2
+apt install geoipupdate
+geoipupdate
+ls -lh /var/lib/GeoIP/
+
+# Для проверки что пошло не так используй ( geoipupdate -v)
+
+ШАГ 9. Настроить NGINX для работы с GeoIP2
+==========================
+
+1. Настройка nginx.conf
+   ==========================
+   
+   sudo nano /etc/nginx/nginx.conf
+   http {
+    charset utf-8;
+    geoip2 /var/lib/GeoIP/GeoLite2-Country.mmdb {
+   
+        $geoip2_data_country_code country iso_code;
+   
+    }
+    geoip2 /var/lib/GeoIP/GeoLite2-City.mmdb {
+   
+        $geoip2_data_city_name      city names en;
+        $geoip2_data_region_name    subdivisions 0 names en;
+        $geoip2_latitude location latitude;
+        $geoip2_longitude location longitude;
+        $geoip2_postal_code  postal code;
+        $geoip2_timezone     location time_zone;
+   
+   }
+   ==========================
+   
+   #В нужный сервер к примеру(laravel.lab.local.conf) добавь тестовую строчку, например:
+   ==========================
+   
+    location / {
+   
+        add_header X-Country-Code $geoip2_data_country_code;
+        add_header X-City $geoip2_data_city_name;
+        add_header X-Region $geoip2_data_region_name;
+        add_header X-Latitude   $geoip2_latitude;
+        add_header X-Longitude  $geoip2_longitude;
+        add_header X-Postal     $geoip2_postal_code;
+        add_header X-Timezone   $geoip2_timezone;
+
+==========================
+#Как ставить: блокировку, редирект по координатам
+==========================
+if Добавляется в .../sites-available/site.conf, под location / , и до proxypass
+Пример 1: Редирект на другой сайт
+if ($geoip2_data_city_name = "Chisinau") {
+    return 302 https://gmail.com;
+}
+Пример 2: Блокировка
+if ($geoip2_data_city_name = "Chisinau") {
+    return 403;
+}
+
+и тд

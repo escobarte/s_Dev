@@ -1,0 +1,61 @@
+========================================================================
+			Work day 09-07-2025 pipeline:
+========================================================================
+snapshot: 10.100.93.6_App02
+start:
+	install: minikube
+prgress:
+	did: trying to repeat after videos
+	- created yaml, created pod.
+	- created replicaset
+
+task: logging monitoring
+	start:
+		- research about grafana, loki, prometheus
+	  new terminology: PromQL, exporters
+
+========================================================================
+			Work day 10-07-2025 pipeline:
+========================================================================
+	snapshot: 10.100.93.5_App01
+		data: Installing Prometheus - Grafna - Loki
+	process:
+		steps: Creating logic in docker-compose.yaml [pro+lo+gra]
+	did:
+		Created sdb, lvm, mount for /grafana/loki/prometheus
+		docker-compose.yaml (grafana-loki-prometheus)
+		configs
+		troubleshooting
+	Result:
+		Up and Running
+	snapshot: 10.100.93.3 - 10.100.93.4 
+		do: Installing node_exporter 
+========================================================================
+			Work day 11-07-2025 pipeline:
+========================================================================		
+	snapshot: 10.100.93.3_Nginx01
+		task: research how metrics to add to Grafana
+		result: understand how to add metrics for node_exporter
+		
+		whatis: stub_status page / create server block in /etc/nginx/conf.d/status
+
+========================================================================
+			Work day 14-07-2025 pipeline:
+========================================================================
+recap {
+		Recheck passed things done:
+		1. Install Grafana - Prometheus - Loki ( ip: 93.5 ) = Up and Running
+		2. Install : node_exporter && nginx-exporter 
+}
+
+monday_begin {
+		1. Find instructions how to Nnginx-Exporer.service
+}
+
+
+
+
+##
+node_exporter — только метрики системы (никакой инфы по nginx-процессу, воркерам, запросам, 4xx/5xx и т.д.).
+
+nginx-exporter или специальные метрики через Prometheus-module-nginx или VTS (или nginx с поддержкой stub_status) — дают настоящие метрики nginx

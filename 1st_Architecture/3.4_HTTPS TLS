@@ -1,0 +1,41 @@
+^ Verify if port 80 is route on IP 185.108.183.205
+				
+				^ On Prx01 ^
+
+netstat -tulnp | grep 80 | grep nginx
+^ Creating Self-Signned SSL (Let's Encrypt not working on local)
+sudo mkdir -p /etc/ssl/app.lab.local
+cd /etc/ssl/app.lab.local
+^ Genereting Keys
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout app.lab.local.key -out app.lab.local.crt -subj "/C=MD/ST=Lab/O=Dev/CN=app.lab.local"
+^ Add to Nginx config (/etc/nginx/sites-enabled/app-lb.conf)
+nano /etc/nginx/sites-enabled/app-lb.conf
+#HTTP -> HTTPS redirect
+			server {
+			    listen 80 default_server;
+			    server_name app.lab.local;
+
+			    return 301 https://$host$request_uri;
+			}
+#HTTPS Server
+
+				server {
+				        listen 443 ssl;
+				        server_name app.lab.local;
+
+				        ssl_certificate /etc/ssl/app.lab.local/app.lab.local.crt;
+				        ssl_certificate_key /etc/ssl/app.lab.local/app.lab.local.key;
+
+				        ssl_protocols TLSv1.2 TLSv1.3;
+				        ssl_ciphers HIGH:!aNULL:!MD5;
+
+nginx -t # check nginx syntax
+systemctl reload nginx
+
+				
+				^ On Prx02 ^
+
+^ copy certificate and key from Prx01 to Prx02
+^ add config to /etc/nginx/sites-enabled/app2-lb.cof the same as in Nginx1
+nginx -t # check nginx syntax
+systemctl reload nginx

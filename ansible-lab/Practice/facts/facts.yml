@@ -1,0 +1,19 @@
+---
+ - name: Print Facts
+   hosts: all
+   tasks:
+      - name: Print OS name
+        debug:
+          var: ansible_distribution
+      - name: Print selinux mode
+        debug:
+          var: ansible_selinux.mode
+      - name: Print RAM
+        debug:
+          var: ansible_memory_mb.real.free
+      - name: Print poc
+        debug:
+          var: ansible_processor[2]
+      - name: Print Tech Guest
+        debug:
+          var: ansible_virtualization_tech_guest

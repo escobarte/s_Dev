@@ -1,0 +1,184 @@
+1. Узнаю на каких серверах какие диски и сколько места
+	lsblk
+	lsblk -f /dev/sdb
+	fdisk -l /dev/sdb
+	parted /dev/sdb/ unit GB print free
+	-- du -sh /srv/nfs # Сколько весит директория
+
+2. Так как я изначально не правильно настроил LVM - пришлось перенастроить партиции и диски, это в отдельном блокноте
+	После настроил LVM для NFS. И смонтировал /srv/nfs/
+
+3.Настройка NFS-server на 93.5
+	#Установка сервера
+		apt updated
+		apt install nfs-kernel-server -y
+		systemctl status nfs-server
+
+		mkdir -p /srv/nfs/zabbix_backup #создал отдельную директорию для zabbix на NFS
+		chown root:root /srv/nfs/zabbix_backup #установил владельца
+		chmod 777 /srv/nfs/zabbix_backup !!! заменить на юзра для заббикс только !!!
+		#/etc/exports = обязательно
+		echo '/srv/nfs/zabbix_backup 10.100.93.7(rw,sync,no_subtree_check,fsid=0,root_squash)' | tee -a /etc/exports 
+		exportfs -ra
+		exportfs -v
+
+	3.1 Настройика IPTABLES {TCP/UDP 2049 — nfsd, TCP 111 — rpcbind (портмаппер), TCP 32765–32769 — mountd, statd, lockd}
+		nano  /etc/nfs.conf
+		[nfsd] 	port=2049 / [mountd] port=32767 / [statd] port=32765 / [lockd] port=32766
+		systemctl restart nfs-server
+
+		# Разрешить с клиента
+		sudo iptables -L INPUT --line-numbers
+		sudo iptables -A INPUT -s 10.100.93.7 -p tcp -m multiport --dports 111,2049,32765:32769 -j ACCEPT
+		sudo iptables -A INPUT -s 10.100.93.7 -p udp -m multiport --dports 111,2049,32765:32769 -j ACCEPT
+
+		# Запретить всем остальным
+		sudo iptables -A INPUT -p tcp -m multiport --dports 111,2049,32765:32769 -j DROP
+		sudo iptables -A INPUT -p udp -m multiport --dports 111,2049,32765:32769 -j DROP
+		#Сохраняем правила для убунту
+		apt install iptables-persistent -y
+		netfilter-persistent save
+
+4.Установка Клиента 93.8 ^^ 93.7
+	apt update && apt install nfs-common -y
+	mkdir -p /mnt/nfs/zabbix_client
+	mount 10.100.93.5:/srv/nfs/zabbix_backup /mnt/nfs/zabbix_client
+	#
+	df -h | grep nfs
+	touch /mnt/nfs/zabbix_client/file_to_test
+	sudo -u zabbix touch /mnt/nfs/zabbix_client/test.file
+
+5. Создаю zabbixsrv && zabbixcli. Для настройки доступов
+	#На сервере
+		getent passwd | cut -d: -f3 | sort -n | tail #Проверям чтобы 1050 был свободен
+		useradd -u 1050 -m -s /bin/bash zabbixusr
+			#так как я сделал ошибку пришлось найит юзера и сделать переименнование
+			cut -d: -f1 /etc/passwd | grep zabb
+			usermod -l error_name new_name
+			#Нужно удалить и создать занного, так как неправильное имя создало непарвильную группу, и тд.
+				userdel zabbixsrv
+				grep "zabb" /etc/group
+		chown zabbixsrv:zabbixsrv /srv/nfs/zabbix_backup
+		chmod 750 /srv/nfs/zabbix_backup/
+		ls -ld /srv/nfs/zabbix_backup/ 
+		id zabbixsrv
+	#На клиенте
+		useradd -u 1050 -m -s /bin/bash zabbixcli (zabbixclidb)
+		id zabbixcli
+		mount 10.100.93.5:/srv/nfs/zabbix_backup /mnt/nfs/zabbix_client/
+	#Тестирую отправку от имени юзера
+		sudo -u zabbix touch /mnt/nfs/zabbix_client/test.file #It Works!
+		sudo -u zabbixcli bash -c 'echo "backup" > /mnt/nfs/zabbix_client/test.log' #updating file.
+
+
+
+
+
+
+########################################################################
+База данных PostgreSQL						93.8	zabbix
+Конфиги и веб-интерфейс Zabbix				93.7	/etc/zabbix, /usr/share/zabbix, /usr/lib/zabbix, /var/log/zabbix/
+ХранилищеNFS	/mnt/nfs/zabbix_backup		Монтировано с 93.5
+
+1. Dump (Chencking Mannualy @ 93.8
+	1.1 sudo -u zabbix pg_dump zabbix | gzip | sudo -u zabbixclidb tee /mnt/nfs/zabbix_client_db/zabbix_db_$(date +%F_%H-%M).sql.gz > /dev/null
+	1.2 sudo -u zabbixclidb ls -la /mnt/nfs/zabbix_client_db/
+2. Preparing: nano /opt/dump_db_zabbix.sh
+	2.1 Script:
+		#!/bin/bash
+
+		#Variables & Config
+		USERNFS="zabbixclidb"
+		DATE=$(date +%F_%H-%M)
+		LOGFILE="/var/log/zabbix_db_backup.log"
+		FILENAME="zabbix_db_${DATE}.sql.gz"
+		BACKUP_DIR="/mnt/nfs/zabbix_client_db"
+
+		echo "[$(date)] Starting Backup Database Zabbix ...." | tee -a "$LOGFILE"
+
+		#Dump and Mv
+		sudo -u zabbix pg_dump zabbix | gzip | sudo -u $USERNFS tee /mnt/nfs/zabbix_client_db/$FILENAME > /dev/null
+
+		#Echo Result
+		if [[ $? -eq 0 ]]; then
+		        echo "[$(date)] Dump, GZIP and MV on 93.5 successful: ${FILENAME}" | tee -a "$LOGFILE"
+		else
+		        echo "[$(date)] FAILED ...." | tee -a "$LOGFILE"
+		fi
+
+		#Clean 1h max
+		echo "[$(date)] Verifying and Delete files 1H older ...." | tee -a "$LOGFILE"
+		sudo -u $USERNFS find "$BACKUP_DIR" -maxdepth 1 -type f -name "zabbix_db_*.sql.gz" -mmin +20 -print0 | xargs -0 -r sudo -u "$USERNFS" rm -v | tee -a "$LOGFILE"
+
+3. Setting Cron
+	crontab -e
+	55 8 * * * /zabbix_db_bk.sh
+	55 8 * * * opt/tar-mv-del.sh
+
+4. TAR (nano /opt/tar-mv-del.sh @ 93.7)
+	#Decalaring
+	DIR_ETC="/etc/zabbix"
+	DIR_SHARE="/usr/share/zabbix"
+	DIR_LIB="/usr/lib/zabbix"
+	DIR_LOG="/var/log/zabbix/"
+
+	DATE=$(date +%F_%H-%M)
+
+	USERNFS="zabbixcli"
+	MOUNT="/mnt/nfs/zabbix_client"
+	LOGFILE="/var/log/zabbix_db_backup.log"
+
+	FILENAME_ETC="etc_zabbix_backup_${DATE}.tar.gz"
+	FILENAME_SHARE="share_zabbix_backup_${DATE}.tar.gz"
+	FILENAME_LIB="lib_zabbix_backup_${DATE}.tar.gz"
+	FILENAME_LOG="log_zabbix_backup_${DATE}.tar.gz"
+
+
+	#Logging
+	echo "................"
+	echo "................"
+	echo "................"
+	echo "................"
+	echo "[$(date)] ....Starting Backup  ......."
+	echo ".....................$DIR_ETC, $DIR_SHARE, $DIR_LIB...."
+	echo ".....................$DIR_LOG from Zabbix ............."
+	echo "................"
+	echo "................"
+	echo "................"
+	echo "................"
+	#Backuping
+	tar -czf - $DIR_ETC | sudo -u $USERNFS tee $MOUNT/$FILENAME_ETC > /dev/null
+	tar -czf - $DIR_SHARE | sudo -u $USERNFS tee $MOUNT/$FILENAME_SHARE > /dev/null
+	tar -czf - $DIR_LIB | sudo -u $USERNFS tee $MOUNT/$FILENAME_LIB > /dev/null
+	tar -czf - $DIR_LOG | sudo -u $USERNFS tee $MOUNT/$FILENAME_LOG > /dev/null
+
+
+	#Echo Result
+	if [[ $? -eq 0 ]]; then
+	        echo ".........Backup Successfully executed: ${DIR_ETC}" | tee -a "$LOGFILE"
+	        echo ".........Backup Successfully executed: ${DIR_SHARE}" | tee -a "$LOGFILE"
+	        echo ".........Backup Successfully executed: ${DIR_LIB}" | tee -a "$LOGFILE"
+	        echo ".........Backup Successfully executed: ${DIR_LOG}" | tee -a "$LOGFILE"
+	else
+	        echo "[$(date)] FAILED .... Read from $LOGFILE" | tee -a "$LOGFILE"
+	fi
+
+	#echo "Deleting old files if exist"
+	#sudo -u "$USERNFS" find "$MOUNT" -maxdepth 1 -type f \
+	#    \( -name "etc_zabbix_backup_*.tar.gz" -o \
+	#       -name "share_zabbix_backup_*.tar.gz" -o \
+	#       -name "lib_zabbix_backup_*.tar.gz" -o \
+	#       -name "log_zabbix_backup_*.tar.gz" -o \
+	#       -name "zabbix_db_*.sql.gz" \) \
+	#    -mmin +1 -delete
+
+	echo "Deleting old files if exist:"
+	sudo -u "$USERNFS" find "$MOUNT" -maxdepth 15 -type f \
+	    \( -name "etc_zabbix_backup_*.tar.gz" -o \
+	       -name "share_zabbix_backup_*.tar.gz" -o \
+	                                                     
+5. Setting Cron 
+
+#sudo -u zabbixclidb ls -lh /mnt/nfs/zabbix_client_db
+ sudo -u zabbixclidb ls -lh /mnt/nfs/zabbix_client_db/
+ sudo -u zabbixcli ls -lh /mnt/nfs/zabbix_client/

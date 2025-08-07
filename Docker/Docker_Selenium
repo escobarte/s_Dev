@@ -1,0 +1,7 @@
+docker run --name browser \
+--restart=always \
+-p 4444:4444 \
+-p 7900:7900 \
+--shm-size="2g" \
+--cpus=0.4 \
+-d selenium/standalone-chrome:lates

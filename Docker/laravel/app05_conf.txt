@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+    ServerName app05.local
+    DocumentRoot /var/www/app05/public
+
+    <Directory /var/www/app05/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/app05_error.log
+    CustomLog ${APACHE_LOG_DIR}/app05_access.log combined
+</VirtualHost>

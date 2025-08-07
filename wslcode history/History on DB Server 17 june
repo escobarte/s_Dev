@@ -1,0 +1,171 @@
+root@DSI-SAS-Lab-Test-01DB01:/etc/bind# history
+    1  13/05/25 16:12:35 history -w
+    2  13/05/25 16:12:35 history -w
+    3  12/06/25 16:28:56 mysql
+    4  12/06/25 16:31:36 systemctl restart mysql
+    5  12/06/25 16:48:20 lsblk
+    6  13/06/25 07:53:32 history
+    7  13/06/25 07:59:15 nano /etc/mysql/mysql.conf.d/mysql/mysqld.cnf
+    8  13/06/25 08:00:08 sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+    9  13/06/25 08:02:28 sudo systemctl restart mysql
+   10  13/06/25 08:02:48 systemctl status mysql
+   11  13/06/25 08:02:54 systemctl restart mysql
+   12  13/06/25 08:03:16 systemctl status mysql.service
+   13  13/06/25 08:04:14 sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+   14  13/06/25 08:04:31 systemctl status mysql.service
+   15  13/06/25 08:04:36 systemctl restart mysql
+   16  13/06/25 09:01:05 sudo mysql
+   17  13/06/25 09:03:51 exit
+   18  16/06/25 09:05:51 mysql
+   19  17/06/25 10:09:40 clear
+   20  17/06/25 10:09:43 pwd
+   21  17/06/25 10:09:44 hostname
+   22  17/06/25 10:09:50 clear
+   23  17/06/25 10:09:51 lsblk
+   24  17/06/25 10:11:55 pvgcreate /dev/sdb
+   25  17/06/25 10:12:05 pvcreate /dev/sdv
+   26  17/06/25 10:12:08 pvcreate /dev/sdd
+   27  17/06/25 10:12:09 pvcreate /dev/sdb
+   28  17/06/25 10:12:52 vgcreate dnsvg /dev/sdb
+   29  17/06/25 10:13:10 lvcreate -n dnslv -L 2G dnsvg
+   30  17/06/25 10:13:13 lsblk
+   31  17/06/25 10:14:36 lvremove /dev/dnsvg/dnslv
+   32  17/06/25 10:14:43 lsblk
+   33  17/06/25 10:17:27 fdisk /dev/sdb
+   34  17/06/25 10:18:18 lsblk
+   35  17/06/25 10:23:16 pvcreate /dev/sdb1
+   36  17/06/25 10:23:20 pvs
+   37  17/06/25 10:23:40 vgcreate DNS-vg
+   38  17/06/25 10:24:02 vgcreate DNS_vg
+   39  17/06/25 10:24:21 vgreated DNS-vg /dev/sdb1
+   40  17/06/25 10:24:38 vgcreate DNS-vg /dev/sdb1
+   41  17/06/25 10:24:44 vgs
+   42  17/06/25 10:25:04 lsblk
+   43  17/06/25 10:26:37 lvcreate -n DNS-lv 2G DNS-vg
+   44  17/06/25 10:27:08 lvcreate -n DNS-lv -L 2G DNS-vg
+   45  17/06/25 10:27:12 lsblk
+   46  17/06/25 10:28:18 lvremove /dev/sdb1/DNS--vg-DNS--lv
+   47  17/06/25 10:29:03 lvremove /dev/DNS--vg/DNS--lv
+   48  17/06/25 10:29:11 lvremove /dev/DNS-vg/DNS-lv
+   49  17/06/25 10:29:18 lsblk
+   50  17/06/25 10:29:52 pvcreate /dev/sdb1
+   51  17/06/25 10:30:46 pvcraete /dev/sdb1
+   52  17/06/25 10:30:53 pvcreate /dev/sdb1
+   53  17/06/25 10:31:27 pvs
+   54  17/06/25 10:31:32 pvsdisplay
+   55  17/06/25 10:31:39 pvdisplay
+   56  17/06/25 10:32:17 vgs
+   57  17/06/25 10:32:48 vgremove DNS-vg
+   58  17/06/25 10:32:54 pvs
+   59  17/06/25 10:33:06 pvremove /dev/sdb1
+   60  17/06/25 10:33:28 lsblk
+   61  17/06/25 10:33:35 pvcreate /dev/sdb
+   62  17/06/25 10:33:40 pvcreate /dev/sdb1
+   63  17/06/25 10:34:00 vgreate DNS /dev/sdb1
+   64  17/06/25 10:34:14 vgcreate DNS /dev/sdb1
+   65  17/06/25 10:34:33 lvcreate -n lv -L 3G DNS
+   66  17/06/25 10:34:37 lsblk
+   67  17/06/25 10:35:15 mkfs.ext4 /dev/DNS/lv
+   68  17/06/25 10:35:27 mkdir /mnt/dns
+   69  17/06/25 10:35:39 mount /dev/DNS/lv /mnt/dns
+   70  17/06/25 10:35:43 lslbk
+   71  17/06/25 10:35:46 lsblk
+   72  17/06/25 10:36:24 echo '/dev/DNS/lv /mnt/dns ext3 defaults 0 2' | sudo tee -a /etc/fstab
+   73  17/06/25 10:36:37 history
+   74  17/06/25 10:36:55 lsblk
+   75  17/06/25 11:16:04 apt update
+   76  17/06/25 11:16:13 apt upgrade -y
+   77  17/06/25 11:16:38 apt install bind9 binde9utils bind9-doc -y
+   78  17/06/25 11:16:59 sudo apt install bind9 bind9utils bind9-doc -y
+   79  17/06/25 11:17:12 systemctl stop named
+   80  17/06/25 11:17:26 ls -l /etc/
+   81  17/06/25 11:18:01 rsync -av /etc/bind/ /mnt/dns/bind/
+   82  17/06/25 11:18:09 apt install rsync
+   83  17/06/25 11:18:13 rsync -av /etc/bind/ /mnt/dns/bind/
+   84  17/06/25 11:18:47 mv /etc/bind /etc/bind.bak
+   85  17/06/25 11:19:31 ln -s /mnt/dns/bind /etc/bind
+   86  17/06/25 11:19:44 ls -l /etc | grep bind
+   87  17/06/25 11:20:27 ls -l | grep iptables
+   88  17/06/25 11:20:46 systemctl start bind9
+   89  17/06/25 11:20:51 systemctl start named
+   90  17/06/25 11:21:08 systemctl status named
+   91  17/06/25 11:22:05 chmod +X /mnt/dns/bind
+   92  17/06/25 11:22:08 systemctl status named
+   93  17/06/25 11:22:12 systemctl start named
+   94  17/06/25 11:22:39 chown -R bind:bind /mnt/dns/bind
+   95  17/06/25 11:22:51 ls -ld /etc/bind
+   96  17/06/25 11:23:05 systemctl start named
+   97  17/06/25 11:23:29 journalctl -xeu named.service
+   98  17/06/25 11:29:27 chowd -R 755 /mn/dns/bind
+   99  17/06/25 11:29:35 apt isntall showd
+  100  17/06/25 11:29:42 apt isntall chowd
+  101  17/06/25 11:29:52 sudo chmod -R 755 /mnt/dns/bind
+  102  17/06/25 11:30:11 ls -ld /etc/bind
+  103  17/06/25 11:30:21 ls -l /etc/bind
+  104  17/06/25 11:30:44 ls -l /mnt/dns/bind/
+  105  17/06/25 11:31:06 named -g
+  106  17/06/25 11:32:13 ls -ld /etc/bind
+  107  17/06/25 11:33:08 chown -R bind:bind /mnt/dns/bind
+  108  17/06/25 11:33:23 chmod 755 /mnt/dns/bind
+  109  17/06/25 11:33:32 chmod 644 /mnt/dns/bind/named.conf
+  110  17/06/25 11:33:46 chmod +x /mnt
+  111  17/06/25 11:33:55 chmod +x /mnt/nds
+  112  17/06/25 11:33:58 chmod +x /mnt/dns
+  113  17/06/25 11:34:09 systemctl restart named
+  114  17/06/25 11:34:23 named -g
+  115  17/06/25 11:34:44 ls -ld /etc/bind/named.conf
+  116  17/06/25 11:35:13 ls -ld /mnt/dns/bind
+  117  17/06/25 11:37:35 ls -l /etc/bind/named.conf
+  118  17/06/25 11:37:52 ls -ld /etc/bind
+  119  17/06/25 11:38:30 ps aux | grep named | grep -v grep
+  120  17/06/25 11:39:46 ls -ld /mnt
+  121  17/06/25 11:39:58 ls -ls /mnt/dns
+  122  17/06/25 11:42:29 sudo chmod 755 /mnt/dns
+  123  17/06/25 11:42:38 sudo chown root:bind /mnt/dns/bind
+  124  17/06/25 11:42:41 sudo chmod 755 /mnt/dns/bind
+  125  17/06/25 11:42:47 sudo chown root:bind /mnt/dns/bind/named.conf
+  126  17/06/25 11:42:51 sudo chmod 640 /mnt/dns/bind/named.conf
+  127  17/06/25 11:43:07 systemctl restart named.service
+  128  17/06/25 11:43:13 systemctl restart named
+  129  17/06/25 11:43:17 systemctl status named
+  130  17/06/25 11:44:09 sudo journalctl -xeu named.service
+  131  17/06/25 11:46:31 ps aux | grep named
+  132  17/06/25 11:49:10 history
+  133  17/06/25 13:21:19 systemctl daemon-reload
+  134  17/06/25 13:21:29 systemctl start named
+  135  17/06/25 13:22:05 systemctl status named.service
+  136  17/06/25 13:22:29 journalctl -xeu named.service
+  137  17/06/25 13:23:20 ls -ld /etc/bind
+  138  17/06/25 13:24:03 chown -R 755 /etc/bind/
+  139  17/06/25 13:24:21 sudo chown -R bind:bind /mnt/dns/bind
+  140  17/06/25 13:24:25 sudo chmod -R 755 /mnt/dns/bind
+  141  17/06/25 13:24:33 sudo find /mnt/dns/bind -type f -exec chmod 644 {} \;
+  142  17/06/25 13:24:55 systemctl start named.service
+  143  17/06/25 13:25:03 systemctl enable named.service
+  144  17/06/25 13:25:06 systemctl start named.service
+  145  17/06/25 13:25:15 systemctl restart named
+  146  17/06/25 13:25:22 journalctl -xeu named.service
+  147  17/06/25 13:25:40 cd /etc/bind
+  148  17/06/25 13:25:42 ls
+  149  17/06/25 13:26:08 ls -ld
+  150  17/06/25 13:26:25 ls -ls named.conf
+  151  17/06/25 13:28:34 cd ~
+  152  17/06/25 13:28:41 cd /mnt/dns
+  153  17/06/25 13:28:42 ls
+  154  17/06/25 13:28:45 cd bind/
+  155  17/06/25 13:28:46 ls
+  156  17/06/25 13:28:55 nano nade.conf
+  157  17/06/25 13:29:03 cd /etc/bind/
+  158  17/06/25 13:29:05 ls
+  159  17/06/25 13:29:10 nano named.conf
+  160  17/06/25 13:29:46 sudo rsync -avP /etc/bind/ /mnt/dns/bind/
+  161  17/06/25 13:29:51 sudo rsync -avP /var/cache/bind/ /mnt/dns/cache/
+  162  17/06/25 13:29:56 sudo rsync -avP /var/lib/bind/ /mnt/dns/lib/
+  163  17/06/25 13:30:50 nano /etc/apparmor.d/usr.sbin.named
+  164  17/06/25 13:33:11 sysmtectl restart apparmor
+  165  17/06/25 13:33:21 systemctl restart apparmor
+  166  17/06/25 13:33:28 systemctl start named
+  167  17/06/25 13:33:37 systemctl status named
+  168  17/06/25 13:34:25 journalctl -xeu named.service
+  169  17/06/25 13:38:47 clear
+  170  17/06/25 13:38:49 history

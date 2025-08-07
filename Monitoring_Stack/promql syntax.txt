@@ -1,0 +1,18 @@
+========================================================================
+			node_exporter_promql_syntax
+========================================================================
+https://docs.byteplus.com/en/docs/vmp/Common-metrics-of-node-exporter
+
+examples:
+HTTP STATUS by Code
+sum by (code) (promhttp_metric_handler_requests_total)
+
+Bytes received
+rate(node_network_receive_bytes_total[1m])
+
+Process CPU
+sum by (instance) (process_cpu_seconds_total)
+
+RAM & Mem Cahced
+go_memstats_frees_total / (1024*1024)
+node_memory_Cached_bytes / (1024*1024)

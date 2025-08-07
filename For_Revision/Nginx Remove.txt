@@ -1,0 +1,29 @@
+🗑️ Полное удаление Nginx
+1. Остановить и отключить сервис Nginx
+sudo systemctl stop nginx
+sudo systemctl disable nginx
+2. Удалить все пакеты Nginx и связанные модули
+sudo apt-get purge nginx nginx-common nginx-full nginx-core nginx-extras
+Если ты ставил отдельные модули:
+sudo apt-get purge 'libnginx*'
+3. Удалить неиспользуемые зависимости
+sudo apt-get autoremove --purge
+4. Удалить все остаточные файлы и директории
+sudo rm -rf /etc/nginx
+sudo rm -rf /var/log/nginx
+sudo rm -rf /var/cache/nginx
+sudo rm -rf /usr/share/nginx
+sudo rm -rf /usr/lib/nginx
+sudo rm -rf /usr/local/nginx
+sudo rm -rf /var/www/html     # если создавал каталоги для сайтов
+5. Проверить, что не осталось бинарников/процессов
+which nginx
+whereis nginx
+ps aux | grep nginx
+sudo netstat -tulnp | grep :80
+sudo netstat -tulnp | grep :443
+Если где-то остались процессы — убей их:
+sudo fuser -k 80/tcp
+sudo fuser -k 443/tcp
+6. (Опционально) Очистить кэш пакетов
+sudo apt-get clean

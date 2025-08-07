@@ -1,0 +1,202 @@
+root@DSI-SAS-Lab-Test-01DB01:/mnt/dns/bind# history | awk '{$1=$2=$3=""; print $0}' | sed 's/^ *//'
+history -w
+history -w
+mysql
+systemctl restart mysql
+lsblk
+history
+nano /etc/mysql/mysql.conf.d/mysql/mysqld.cnf
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo systemctl restart mysql
+systemctl status mysql
+systemctl restart mysql
+systemctl status mysql.service
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+systemctl status mysql.service
+systemctl restart mysql
+sudo mysql
+exit
+mysql
+fdisk /dev/sdb
+pvcreate /dev/sdb1
+vgcreate DNS /dev/sdb1
+lvcreate -n lv -L 3G DNS
+lsblk
+mkfs.ext4 /dev/DNS/lv
+mkdir -p /mnt/dns
+echo '/dev/DNS/lv /mnt/dns ext4 defaults 2 0' | sudo tee -a /etc/fstab
+mount -a
+systemctl daemon-reload
+lsblk
+reboot
+lsblk
+apt install bind9 bind9utils bind9-doc -y
+systemctl stop named
+rsync -avP /etc/bind/ /mnt/dns/bind/
+apt install rsync
+rsync -avP /etc/bind/ /mnt/dns/bind/
+sudo ln -s /mnt/dns/bind /etc/bind
+chown -R bind:bind /mnt/dns/bind
+chmod -R 775 /mnt/dns/bind
+chown -R bind:bind /mnt/dns/cache
+nano /etc/apparmor.d/usr.sbin.named
+systemctl reload apparmor
+systemctl start named
+systemctl status named
+systemctl enable named
+ls -ld /etc/bind
+ls -l /etc/bin
+ls -l /etc/bind
+named -g
+cat /lib/systemd/system/named.service
+sysmtectl edit named
+systemctl edit named
+systemctl daemon-reexec
+systemctl daemon-reload
+systemctl restart named
+systemctl status named
+ls -ld /mnt/dns/bind/
+cd /mnt/dns/
+ls
+cd bind/
+ls
+history
+systemctl edit named
+systemctl cat named
+systemctl stop named
+systemctl edit named
+systemctl cat named
+systemctl stop named.service
+systemctl edit named
+systemctl cat named
+cd ~
+ls -l /etc/bin
+ls -l /etc/bind
+rm /etc/bind
+ls -ld /etc/bin
+ls -ld /etc/bind
+rm -f /etc/bind
+rm -rf /etc/bind
+find / -name named.service
+cd /usr/lib/systemd/system/named.service
+cd /usr/lib/systemd/system/
+ls
+find / -name named.service
+cd ~
+find / -name override.conf
+nano /etc/systemd/system/named.service.d/override.conf
+cd /etc/
+ls -ld
+ls -l
+fidn systemd
+whereis systemd
+whereis named.service.d
+cd ..
+cd ~
+mkdir -p /etc/systemd/system/named.service.d/
+nano /etc/systemd/system/named.service.d/override.conf
+systemctl daemon-reload
+systemctl show named.service | grep ExecStart
+systemctl restart named.service
+journalctl -xeu named.service
+ls /mnt/dns/bind/
+cat /mnt/dns/bind/named.conf
+sudo nano /mnt/dns/bind/named.conf
+systemctl daemon-reload
+systemctl start named
+systemctl enable named
+systemctl status named
+cd /mnt/dns/bind/
+ls
+hisotry
+history
+sudo nano /mnt/dns/bind/named.conf
+find / -name managed-keys.bind.jnl
+ls
+nano named.conf.options
+ls -ld /var/
+ls -l /var/
+ls -l /var/cache/
+ls -l /var/cache/bind/
+cd ~
+systemctl stop named.service
+pkill -9 named
+rm -f /var/cache/bind/managed-keys.bind.jnl
+systemctl daemon-reload
+systemctl start named.service
+systemctl status named.service
+journalctl -xeu named.service
+history
+cd /mnt/dns/
+ls
+cd bind
+ls
+nano db.local
+grep -r "zone \"localhost\"" /mnt/dns/bind/
+nano named.conf.default-zones
+nano named.conf.local
+nano named.conf.options
+grep -r "zone \"etc\"" /mnt/dns/bind/
+nano named.conf
+sudo named-checkconf /mnt/dns/bind/named.conf
+systemctl restart named.service
+systemctl status named.service
+journalctl -xeu named.service
+systemctl status named
+nano named.conf.local
+cp db.local db.lab.local
+ls
+nano db.lab.local
+named-checkconf named.conf
+named-checkzone lab.local /mnt/dns/bind/db.lab.local
+systemctl restart named
+systemctl status named
+nano db.lab.local
+systemctl restart named
+netstat -tulnp | grep 80 | grep nginx
+nano db.lab.local
+named-checkzone lab.local /mnt/dns/bind/db.lab.local
+nano db.lab.local
+systemctl restart named
+nano db.lab.local
+systemctl restart named
+nano db.lab.local
+systemctl restart named
+cat /etc/resolv.conf
+find / -name resolv.conf
+nano /etc/resolv.conf
+resolvctl status
+resolevctl status
+nano /usr/lib/systemd/resolv.conf
+dig @10.100.93.8 app.lab.local A
+apt install parted
+parted -l
+lsblk
+df -h
+less /var/log/syslog
+apt install less
+less /var/log/syslog
+lsof
+apt install lsof
+lsof .
+uptime
+iostat
+apt install iostat
+apt install systat
+apt install sysstat
+iostat
+vmstat
+jobs
+sar -q
+sar -r
+sar -P
+ps aux | grep sar
+ps aux
+ps aux | grep sar
+pgrep sar
+kill 6042
+ps aux | grep sar
+kill 6045
+ps aux | grep sar
+netstat -at
+history

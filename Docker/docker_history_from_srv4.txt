@@ -1,0 +1,336 @@
+lsblk
+pvs
+fidsk /dev/sdb
+apt install fdisk
+fdisk /dev/sdb
+lsblk
+fidsk /dev/sdb
+fdisk /dev/sdb
+pvcreate /dev/sdb1
+vgcreate DOCKER /dev/sdb1
+lvcreate -n system -L 9G DOCKER
+mkfs.ext4 /dev/DOCKER/system
+mkdir /docker-data
+mount /dev/sdb1/Docker/system /docker-data
+ls /docker-data/
+mount /dev/sdb1/DOCKER/system /docker-data/
+lsblk
+rm -rf /docker-data/
+mkdir -p /var/docker-data
+mount /dev/DOCKER/system /var/docker-data/
+echo '/dev/DOCKER/system /var/docker-data/ ext4 defaults 2 0' | tee -a /etc/fstab
+lsblk
+mkdir -p /etc/docker/
+nano /etc/docker/daemon.json
+systemctl stop docker
+systemctl stop docker.socker
+systemctl status docker
+systemctl stop docker.socket
+systemctl disable docker.socket
+systemctl status docker.socket
+systemctl status docker
+rsync -aP /var/lib/docker/ /docker-data/
+apt install rsync
+rsync -aP /var/lib/docker/ /docker-data/
+systemctl start docker
+systectl images
+docker images
+docker run hello-world
+ls /docker-data/
+docker ps -a
+lsblk
+mv /docker-data/* /var/docker-data//
+systemctl stop docker
+systemctl disable docker.socket
+ls /docker-data/
+rm -rm /docker-data/
+rm -rf /docker-data/
+rm -rf /var/docker-data/
+nano /etc/docker/daemon.json
+rm -rf /etc/docker/daemon.json
+ll /etc/docker/
+umount /var/docker-data/
+lsblk
+mount /dev/mapper/DOCKER-system /var/lib/docker/
+lsblk
+systemctl start docker
+docker image
+docker run hello-world
+ll /var/docker-data/
+ll /var/lib/docker/
+ll /var/lib/docker/containers/
+ll /var/lib/docker/containers/34e370c5c838fbb15b1897269e1812b5f95d58ae8be38bc3ce730ae786de223d/
+lsblk
+docker images -a
+docker ps -a
+docker stop 34e370c5c838
+docker rm 34e370c5c838
+docker rmi 74cc54e27dc4
+docker images -a
+cd /srv/
+ls
+ll
+mkdir -p projects
+ll
+cd projects/
+mkdir docker-laravel
+cd docker-laravel/
+nano Dockerfile
+nano Dockerfile
+docker build -t laravel-app .
+ll
+rm -rf Dockerfile
+nano Dockerfile
+docker build -t laravel-app .
+nano app02.conf
+docker build -t laravel-app .
+docker images -a
+docker inspect laravel-app
+ss -tulnp | grep 8080
+ss -tulnp | grep 80
+ss -tulnp | grep 7080
+ss -tulnp | grep 7090
+sudo iptables -L -n -v
+sudo iptables -L INPUT --line-numbers
+ss -tuln | grep 7080
+ss -tuln | grep '7080'
+sudo iptables -L INPUT -v -n | grep -E '7080|8080'
+docker run -d -p 8080:80 laravel-app
+apt update
+apt install mysql-client -y
+mysql -h 10.100.93.8 -u laravel_user_app04 -p
+history
+ll
+mv Dockerfile Dockerfile.bak
+ll
+nano Dockerfile
+docker build -t laravel-app-v2
+docker build -t laravel-app-v2 .
+rm -rf Dockerfile
+nano Dockerfile
+docker build -t laravel-app-v2 .
+sudo iptables -L INPUT -v -n | grep -E '70|80'
+docker images
+docker run -d -p 7080:80 laravel-app-v2
+docker ps
+docker exec -t 39b43bb0a15d bash
+docker exec -t 39b43bb0a15d /bin/bash
+docker network ls
+docker network inspect bridge
+iptables -L -n -v
+iptables -L FORWARD -n -v
+history tail -n 10
+tail -f history
+history | tail -n
+history | tail -f
+ip addr show docker0
+sudo iptables -L INPUT --line-numbers
+iptables -A FORWARD -i docker0 -o eth0 -j ACCEPT
+iptables -A FORWARD -i eth0 -o docker0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+history | tail -n 20
+docker exec -t 39b43bb0a15d /bin/bash
+iptables -t nat -A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE
+iptables -L FORWARD -n -v
+docker exec -t 39b43bb0a15d /bin/bash
+ip a
+sudo iptables -L INPUT --line-numbers
+sudo iptables -L FORWARD --line-numbers
+iptables -A FORWARD -i docker0 -o ens192 -j ACCEPT
+sudo iptables -L FORWARD --line-numbers
+iptables -D FORWARD 3
+sudo iptables -L FORWARD --line-numbers
+iptables -D FORWARD 3
+sudo iptables -L FORWARD --line-numbers
+iptables -A FORWARD -i ens192 -o docker0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -t nat -A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE
+docker exec -t 39b43bb0a15d /bin/bash
+docker ps
+docker exec -t 3937f64376d9 /bin/bash
+iptables -L FORWARD -n -v
+iptables -t nat -L POSTROUTING -n -v
+sudo netfilter-persistent save
+docker exec -t 3937f64376d9 /bin/bash
+ip route
+iptables -L DOCKER-USER -n -v
+iptables -I DOCKER-USER -i docker0 -o ens192 -j ACCEPT
+iptables -I DOCKER-USER -i ens192 -o docker0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -L DOCKER-USER -n -v
+docker exec -t 3937f64376d9 /bin/bash
+docker ps
+docker stop 39b43bb0a15d
+docker rm 39b43bb0a15d
+grep 'docker run' | history
+history | grep -r "run"
+history | grep -r "docker"
+history | grep -r 'docker'
+history | grep 'docker'
+history | grep 'docker run'
+docker run -d -p 7080:80 laravel-app-v2
+history | grep 'docker exec'
+docker ps
+docker exec -it f0c9de0c6fd7 /bin/bash
+docker ps
+docker stop f0c9de0c6fd7 3937f64376d9
+docker rm f0c9de0c6fd7 3937f64376d9
+ll
+mv app02.conf app04.conf
+rm -rf Dockerfile.bak
+mv Dockerfile DockerfileV2.bak
+ll
+nano Dockerfile
+history | grep "docker"
+docker build -t laravel-app-v3 .
+docker images
+nano Dockerfile
+docker images
+docker build -t laravel-app-v3 .
+docker images
+docker ps
+docker ps -a
+history | grep "docker run"
+docker run -d -p 7080:80 laravel-app-v3
+docker exec -it 91ed4055868383a52640ab1950f46f518ae34f3653bccb3df68bc162ff2f1829 /bin/bash
+docker ps
+docker stop 91ed40558683
+docker start 91ed40558683
+docker exec -it 91ed4055868383a52640ab1950f46f518ae34f3653bccb3df68bc162ff2f1829 /bin/bash
+curl http://localhost
+docker ps
+docker stop 91ed40558683
+docker rm 91ed40558683
+docker images
+docker rmi laravel-app-v3
+docker images
+ll
+nano app04.conf
+history | grep "docker build"
+docker build -t laravel-app-v3 .
+docker ps
+docker ps -a
+docker images
+docker run -d -p 7080:80 laravel-app-v3
+docker exit -it 3304fbdd385f0f724ed7566d46514a9d6b44c67ee0654b8cf35017f76bb8ae3c /bin/bash
+docker exec -it 3304fbdd385f0f724ed7566d46514a9d6b44c67ee0654b8cf35017f76bb8ae3c /bin/bash
+history
+docker exec -it 3304fbdd385f0f724ed7566d46514a9d6b44c67ee0654b8cf35017f76bb8ae3c /bin/bash
+docker ps
+docker stop 3304fbdd385f
+docker rm 3304fbdd385f
+docker images
+docker rmi ac8cc8d1667d
+ls
+ll
+history | grep "mkdir"
+cd /etc/docker/ll
+cd /etc/docker/
+ll
+lsblk
+cd /var/lib/docker/
+ll
+find / -name Dockerfile
+cd /srv/projects/docker-laravel/
+ll
+nano Dockerfile
+history | grep "docker build"
+docker build -t laravel-app-v3 .
+nano Dockerfile
+docker build -t laravel-app-v3 .
+docker image
+docker images
+docker run -d -p 8080:80 laravel-app-v3
+docker exex -it be8f31051178f7e30d048ddc2af925c508ce595e2ed6b6166631b3e59a56ffe1 /bin/bash
+docker exec -it be8f31051178f7e30d048ddc2af925c508ce595e2ed6b6166631b3e59a56ffe1 /bin/bash
+nano Dockerfile
+docker exec -it be8f31051178f7e30d048ddc2af925c508ce595e2ed6b6166631b3e59a56ffe1 /bin/bash
+docker ps
+docker stop be8f31051178
+docker rm be8f31051178
+docker images
+docker rmi laravel-app-v3
+nano Dockerfile
+docker build -t laravel-app-v4 .
+docker run -d -p 8080:80 laravel-app-v4
+docker ps
+docker exec -it 9f6d7ae81170 /bin/bash
+docker ps
+docker stop 9f6d7ae81170
+docker rm 9f6d7ae81170
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+nano Dockerfile
+docker build -t laravel-app-v5 .
+docker run -d -p 8080:80 laravel-app-v5
+docker exec -it acead7bb52aea49f961a7527e3697fbeaf7937388a373f47cd2a61967d73919b /bash
+docker exec -it acead7bb52aea49f961a7527e3697fbeaf7937388a373f47cd2a61967d73919b basj
+docker exec -it acead7bb52aea49f961a7527e3697fbeaf7937388a373f47cd2a61967d73919b bash
+nano Dockerfile
+docker ps
+docker stop acead7bb52ae
+docker rm acead7bb52ae
+docker build -t laravel-app-v6-fin .
+nano Dockerfile
+docker build -t laravel-app-v6-fin .
+nano Dockerfile
+docker build -t laravel-app-v6-fin .
+docker run -d -p 8080:80 laravel-app-v6-fin
+docker ps
+docker exec -it 9c528b6a9347 bash
+nano Dockerfile
+docker build -t laravel-app-v6-not .
+docker stop 9c528b6a9347
+docker run -d -p 8080:80 laravel-app-v6-not
+docker ps
+docker exec -it b8bb390da0af bash
+docker ps
+docker stop b8bb390da0af
+docker rm b8bb390da0af
+docker -s
+docker ps
+docker ps -a
+docker rm 9c528b6a9347
+nano Dockerfile
+history | grep "docker build"
+docker build -t laravel-app-v7 .
+docker run -d -p 8080:80 laravel-app-v7
+historu
+history
+lsblk
+cd /var/lib/docker/
+ll
+cd image/
+ll
+cd overlay2/
+ll
+cd ..
+cd containers/
+ll
+cd ..
+cd volumes/
+ll
+cd ..
+history
+history | awk '{$1=$2=$3=""; print $0}' | sed 's/^ *//' | tail -f
+clear
+history | awk '{$1=$2=$3=""; print $0}' | sed 's/^ *//'

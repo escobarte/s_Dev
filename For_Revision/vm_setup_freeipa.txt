@@ -1,0 +1,62 @@
+1. Setezi Hostname pe fiecare VM
+#example
+#Static hostname: sas-lab-prx01.gov.ipa
+1. Setezi Hostname pe fiecare VM
+hostnamectl set-hostname sas-lab-prx01.gov.ipa
+exec bash
+hostnamectl
+2. Modifici in /etc/hosts
+127.0.0.1 localhost
+#127.0.1.1 emplate-ubuntu-24
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+
+#10.100.93.3    DSI-SAS-Lab-Test-01Prx01.mcloud.local DSI-SAS-Lab-Test-01Prx01
+10.100.93.3     sas-lab-prx01.gov.ipa sas-lab-prx01
+
+3. 
+#netplan generate
+#vim /etc/neplan/*.yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ens192:
+      dhcp4: no
+      dhcp6: no
+      addresses:
+        - 10.100.93.3/24
+      routes:
+        - to: default
+          via: 10.100.93.1
+      nameservers:
+        search:
+          - GOV.IPA
+        addresses:
+          - 172.28.39.31
+          - 172.28.39.32
+		  
+#netplan apply
+
+//Случай когда на сервере используется cloud-init
+1. sudo nano /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+bash
+network: {config: disabled}
+2. mv /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml.bak
+
+4.Removing password sudo
+sudo visudo
+add: tenantadmin ALL=(ALL) NOPASSWD:ALL
+
+5.
+ipa-client-install --uninstall
+apt install freeipa-client -y
+ipa-client-install --mkhomedir
+#force enroll
+ipa-client-install --mkhomedir --domain=gov.ipa --realm=GOV.IPA --server=dc1.gov.ipa --hostname=`hostname`

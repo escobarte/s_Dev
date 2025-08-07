@@ -1,0 +1,9 @@
+tail -f /var/log/filebeat/filebeat.log
+tail -f /var/log/logstash/logstash-plain.log
+telnet 10.100.93.5 5044
+ls -l /var/log/nginx/
+GET _cat/indices?v
+tail -n 50 /var/log/logstash/logstash-plain.log
+journalctl -u filebeat
+filebeat test config
+filebeat test output

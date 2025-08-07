@@ -1,0 +1,9 @@
+all:
+  hosts:
+    prx02:
+      ansible_host: 10.100.93.4
+
+  vars:
+    ansible_user: scusnir
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa_scusnir
+    ansible_python_interpreter: /usr/bin/python3

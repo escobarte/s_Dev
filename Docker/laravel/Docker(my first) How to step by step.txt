@@ -1,0 +1,68 @@
+Задача: Сделать контейнер который развернет Laravel и подключиться к базе на внешнем сервере.
+Чтобы всё это работало нужно:
+1. Create LVM
+2. IPTABLES rules
+3. USER for DB on DB Server
+4. Dockerfile
+4.1 app05.conf
+
+Step1 _ Server 10.100.93.6
+Create LVM / install docker / mount to LVM / create project folder
+
+apt install fdisk
+fdisk /dev/sdb
+pvcreate /dev/sdb1
+vgcreate DOCKER /dev/sdb1
+lvcreatea -n system -L 9G DOCKER
+mkfs.ext4 /dev/DOCKER/system
+mount /dev/DOCKER/system /var/lib/docker
+echo '/dev/DOCKER/system /var/lib/docker/ ext4 defaults 2 0' | tee -a /etc/fstab
+cd /var/lib/docker
+mkdir -p projects
+cd projects
+mkdir -p docker-laravel-2
+cd docker-laravel-2
+
+Step2 _ Server 10.100.93.8
+#Add new user laravel-user-app05
+
+
+mysql
+	CREATE USER 'laravel_user_app05'@'10.100.93.6' IDENTIFIED BY '1323';
+	GRANT ALL PRIVILEGES ON laravel.* TO 'laravel_user_app05'@'10.100.93.6';
+	FLUSH PRIVILEGES;
+	EXIT;
+
+#Test connection from 93.6 to 93.8 mysql
+mysql -h 10.100.93.8 -u laravel_user_app05 -p
+#It works
+
+
+Step3 _ Server 10.100.93.6
+Dockerfile && app05.conf > build, run
+
+pwd = /var/lib/docker/projects/docker-laravel-2
+nano Dockerfile #see Dockerfile_WorkVersion
+nano app02.conf #see app05_conf.txt
+docker build -t laravel-app-005 .
+docker run -d -p 7080:80 <image_tag>
+
+#Step4-Optional _ Server 10.100.93.6
+1. Проверить есть ли у меня доступ в интернет из контейнера
+
+### 1. Проверка network in containers
+docker exec -it <container:id> bash
+apt update ==> work 
+#означает что настройка IPTABLES на серверах под Laravel (app01-app02-app03) подходит. 
+А ту самую сложность что я встречал при первом тесте была на сервере Proxy. 
+Не забывай, что после 
+!!добавления правила в IPTABLES - контейнер нужно перезапустить.!!
+
+Step5 @ 10.100.93.6
+IPTABLES rule on port 7080
+
+iptables -A INPUT -p tcp -m multiport --dports 7080 -j ACCEPT
+
+Step 5 The Result:
+1. Accessing 10.100.93.6:7080 Laravel Up and Running
+2. Stoping mysql = laravel down (Означает что привязка к базе данных работает)

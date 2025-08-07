@@ -1,0 +1,37 @@
+docker run hello-world
+#Запусти контейнер, который будет висеть "живым" дольше, например:
+docker run -d --name test_busybox busybox sleep 1000
+	-d — запустить в фоне
+	--name test_busybox — даём имя контейнеру
+docker ps
+docker inspect --format '{{.State.Pid}}' test_busybox
+apt install -y util-linux
+#Контейнер busybox не содержит /bin/bash — там только /bin/sh.
+nsenter -t 139015 -a /bin/sh
+	ps — покажет только процессы контейнера
+/ 
+		PID   USER     TIME  COMMAND
+		    1 root      0:00 sleep 1000
+		    8 root      0:00 /bin/sh
+		    9 root      0:00 ps
+	hostname — покажет своё имя (обычно не совпадает с хостом
+		/  
+			faca93e5014b
+	ls / — сравни, что лежит внутри
+		bin    dev    etc    home   lib    lib64  proc   root   sys    tmp    usr    var
+
+ls /proc/139015/ns/
+
+#Теория
+Namespace:
+• pid - изолирует процессы (PID: Process ID
+• net - управляет сетевыми интерфейсами (NET: Networking
+· iрс - управляет доступом между процессами (IPC: InterProcess Communication
+· mnt - управляет монтирование файловых систем (MNT: Mount
+• uts - сепарирует имя хоста и доменное имя (UTS: Unix Timesharing System
+• user - изолирует идентификаторы, связанные с безопасностью (USER: userid, groupid
+
+• cgroups - распределяют время процессора, системную память, пропускную способность
+сети.
+· Capabilities - это средство для управления привилегиями
+· UnionFS - файловая система, которая работает путем создания слоев

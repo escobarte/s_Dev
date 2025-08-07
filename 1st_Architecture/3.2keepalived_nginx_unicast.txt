@@ -1,0 +1,50 @@
+cat sudo nano /bin/check_nginx.sh
+#!/bin/sh
+if [ -z "`pidof nginx`" ]; then
+  exit 1
+fi
+sudo chmod 755 /bin/check_nginx.sh
+
+
+
+
+
+
+  GNU nano 7.2                              /etc/keepalived/keepalived.conf                                        vrrp_script check_nginx {
+  script "/bin/check_nginx.sh"
+  interval 2
+  weight 50
+}
+
+vrrp_instance VI_1 {
+    state MASTER
+    interface ens192                          # ← проверь имя интерфейса через `ip a`
+    virtual_router_id 51
+    priority 100
+    advert_int 1
+
+    authentication {
+        auth_type PASS
+        auth_pass 123456
+    }
+
+    virtual_ipaddress {
+        10.100.93.2                         # ← это твой VIP
+    }
+    track_script {
+        chk_nginx
+    }
+
+
+Как добавить unicast: 
+/on master/ 
+  unicast_src_ip 10.100.93.3
+  unicast_peer {
+    10.100.93.4
+  }
+/On slave/
+ unicast_src_ip 10.100.93.4
+ unicast_peer {
+  10.100.93.3
+ }
+.. Restart keepalived on both ..

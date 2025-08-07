@@ -1,0 +1,59 @@
+=======================================================
+-----  Elasticsearch Installation on 10.100.93.6 ------
+=======================================================
+---------------------------------
+|❗Main steps:		    	|
+|1. LVM 			|
+|2. Installation		|
+|2.1 Add user privileges	|
+|3. IPTABLES Rules		|
+---------------------------------
+
+------------------------------
+>>> 1. LVM Prepare <<<
+------------------------------
+
+. /dev/elastic/search
+fdisk /dev/sdb
+n, p, +15, t, 8e
+pvcreate /dev/sdb5
+vgcreate elastic /dev/sdb5
+lvcreate -n search -L 14.9G elastic
+mkfs.ext4 /dev/mapper/elastic-search
+sudo mkdir -p /var/lib/elasticsearch
+nano /etc/fstab
+/dev/elastic/search /var/lib/elasticsearch ext4 defaults 2 0
+mount -a
+systemctl daemon-reload
+lsblk -f 
+
+-------------------------------
+>>> 2. Installation Process <<<
+-------------------------------
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+sudo apt-get install apt-transport-https
+echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/9.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-9.x.list
+apt install elasticsearch
+>>>2.1<<<
+sudo chown -R elasticsearch:elasticsearch /var/lib/elasticsearch
+[################################]
+[nano /etc/elasticsearch/elasticsearch.yml (add at the end or untag)]
+cluster.name: nginx-elk
+node.name: elk-node-1
+network.host: 0.0.0.0
+http.port: 9200
+systemctl enable elasticsearch
+systemctl start elasticsearch
+systemctl status elasticsearch
+[################################]
+#Reset password to access db infomation and for 
+sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic (*b7u1ak*HqfpIklumVfb)
+curl -u elastic:*b7u1ak*HqfpIklumVfb http://localhost:9200/
+curl -u elastic:*b7u1ak*HqfpIklumVfb http://localhost:9200/_cluster/health?pretty
+
+-------------------------------
+>>>3.IPTABLES Not needed for this server  <<<
+-------------------------------
+curl -u elastic:*b7u1ak*HqfpIklumVfb http://10.100.93.6:9200/_cat/indices?v | grep nginx-access
+login:   elastic
+passwd: *b7u1ak*HqfpIklumVfb

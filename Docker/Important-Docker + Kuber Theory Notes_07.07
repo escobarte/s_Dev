@@ -1,0 +1,69 @@
+Kubernetes - система оркестрации для автоматизации развёртывания. масштабирования контейнерищированных приложений и управления.
+Docker не различает “физические” и “виртуальные” ядра — он видит всё, что предоставляет операционная система (то есть nproc или /proc/cpuinfo). 
+Что используется для контейнеризации?
+A: Namespaces
+ - PID
+ - Netwroking
+ - Mount
+ - User
+B: Control Groups
+ - Memory
+ - CPU
+ - Blcok I/O
+ - Network
+
+ Docker Daemon - Контейнер engine (Серверная часть, работат на хосте, скачивает и запускает из них контейнеры, создает сеть между контейнерами, собирает логи, создает новый образ)
+ Docker CLi - как упровлять 
+ Dockerfile - инструкция как собирать image
+ Image - из которого раскатывается контейнер
+ Container = 1 process = 1 container
+ Docker registry - хранилище образов
+
+ // 
+ docker search <<name>> - поиск образа в Registry !!!! очень ражная штука )
+ docker pull/build/run/rm/ps
+ docker logs <<name>> 
+ docker start/stop/restart <<name>>
+
+docker run --name long --rm -d long #по факту он будет запускать контейнер, делать операцию и удалять контейнер, что ноый смог создаться
+
+docker ps -a -q
+docker rm $(docker ps -a -q)
+
+Про rediss
+Видео2 1:08:00 - пересмотреть - потому что не понял
+
+Монтирование - Это очень помогает когда твой контейнер слитает - но данные остаются
+docker run --name redis --rm -v (1ый аргумент что монтируем)/tmp/dockerpractice/redis:(1ой аргумент куда монтируем)data -d redis
+#чистый вариант
+docker run --name --rm -v /tmp/dockerpractice/redis:data -d redis
+docker run --memory=256m mycontainer #Установить максимум 256 мбай
+docker run --cpus=1 mycontainer
+#Как лимитировать "как в процентах" / количество_ядер * нужный_процент / 100
+	Допустим, у тебя сервер с 4 ядрами.	Чтобы дать контейнеру не больше 30% CPU:
+	4 x 0.3 = 1.2 ядра / --cpus=1.2 ≈ 30% отвсех доступных ядер
+
+---
+Узнай:
+Docker volume documentation
+Механизмы контейнеризации (unshare, netns, systemd-cgls)
+Как ограничить ресурсы контейнеру (cpu/ram)
+---
+Про процессы в Linux:
+Логических процессоров (потоков): nproc
+Информация о CPU:(Выдаёт таблицу: количество ядер, потоков, архитектуру и т.д.): lscpu
+htop or top / task manager
+Процессы, которые больше всего грузят CPU: ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head
+Сколько ядер видит ядро: cat /proc/cpuinfo | grep "cpu cores" | uniq
+— Покажет топ-10 процессов, которые больше всего используют память.
+
+!!!!! Топчик
+ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head
+systemctl status <PID>
+docker stats
+cat /proc/meminof | grep Mem
+
+bash /tmp/dockps.sh
+
+https://youtu.be/Hz7fkXQABNo?list=PL8D2P0ruohOA4Y9LQoTttfSgsRwUGWpu6&t=2132
+

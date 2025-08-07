@@ -1,0 +1,53 @@
+Zabbix Server on 93.7
+
+#Adding Repo Zabbix
+wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-1+ubuntu24.04_all.deb
+sudo dpkg -i zabbix-release_7.0-1+ubuntu24.04_all.deb
+sudo apt update
+#Installing packages PSQL
+sudo apt install zabbix-server-pgsql zabbix-frontend-php php-pgsql zabbix-apache-conf zabbix-sql-scripts zabbix-agent -y
+#Changing config PSQL
+sudo nano /etc/zabbix/zabbix_server.conf
+DBHost=10.100.93.8
+DBName=zabbix
+DBUser=zabbix
+DBPassword=1323
+#Starting zabbix
+sudo systemctl enable zabbix-server
+sudo systemctl start zabbix-server
+sudo systemctl status zabbix-server
+
+
+PSQL 16 on 93.8
+sudo apt update
+sudo apt install postgresql postgresql-contrib -y
+sudo systemctl status postgresql
+sudo -u postgres psql
+CREATE DATABASE zabbix;
+CREATE USER zabbix WITH ENCRYPTED PASSWORD '1323';
+GRANT ALL PRIVILEGES ON DATABASE zabbix TO zabbix;
+GRANT ALL ON SCHEMA public TO zabbix;
+ALTER SCHEMA public OWNER TO zabbix;
+\q
+
+#Удалил сломаную базу
+sudo -u postgres dropdb zabbix
+CREATE DATABASE zabbix OWNER zabbix;
+GRANT ALL PRIVILEGES ON DATABASE zabbix TO zabbix;
+GRANT ALL ON SCHEMA public TO zabbix;
+ALTER SCHEMA public OWNER TO zabbix;
+\q
+
+
+sudo nano /etc/postgresql/16/main/pg_hba.conf
+#add to the end
+host    zabbix    zabbix    10.100.93.7/32    md5
+#find and change for
+listen_addresses = '*'
+sudo systemctl restart postgresql
+
+#####################################
+
+Importing DB for zabbix (on 93.7)
+sudo apt install postgresql-client -y
+zcat /usr/share/zabbix-sql-scripts/postgresql/server.sql.gz | psql -h 10.100.93.8 -U zabbix zabbix

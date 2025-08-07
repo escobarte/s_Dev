@@ -1,0 +1,66 @@
+root@DSI-SAS-Lab-Test-01APP02:~# history
+    1  13/05/25 16:12:35 history -w
+    2  13/05/25 16:12:35 history -w
+    3  11/06/25 13:15:16 apt update
+    4  11/06/25 13:15:30 apt upgrade
+    5  11/06/25 13:15:55 apt install opnessh-server
+    6  11/06/25 13:16:18 apt install openssh-server -y
+    7  11/06/25 13:16:47 systemctl enable ssh
+    8  11/06/25 13:16:55 systemctl start ssh
+    9  11/06/25 13:17:06 systemctl status ssh
+   10  11/06/25 13:22:49 exit
+   11  12/06/25 15:23:59 clear
+   12  12/06/25 15:24:03 history
+   13  12/06/25 15:24:12 clear
+   14  12/06/25 15:24:22 fdisk /dev/sdb
+   15  12/06/25 15:29:56 lsblk
+   16  12/06/25 15:30:11 fdisk /dev/sdb
+   17  12/06/25 15:31:44 pvcreate /dev/sdb1
+   18  12/06/25 15:32:35 vgcreate vp_app2 /dev/sdb1
+   19  12/06/25 15:33:18 lvcreate -n www -L 5G vg_app2
+   20  12/06/25 15:34:49 vgs
+   21  12/06/25 15:35:10 vgrename vp_app2 vg_app2
+   22  12/06/25 15:35:13 vgs
+   23  12/06/25 15:36:03 lvcreate -n www -L 5G vg_app2
+   24  12/06/25 15:36:47 mkfs.ext4 /dev/vg_app2/www
+   25  12/06/25 15:37:38 mkdir -p /var/www
+   26  12/06/25 15:38:44 echo '/dev/vg_app2/www /var/www ext4 defaults 2 0' | sudo tee -a /etc/fstab
+   27  12/06/25 15:38:52 sudo mount -a
+   28  12/06/25 15:40:08 systemctl daemon-reload
+   29  12/06/25 15:40:12 lsblk
+   30  12/06/25 15:41:34 sudo apt update && sudo apt install php php-cli php-mbstring php-xml php-bcmath php-curl php-zip php-mysql unzip curl git apache2 libapache2-mod-php -y
+   31  12/06/25 15:42:04 && echo -e "\nInstalled Successfully:\n" && dpkg -l | grep -E 'php|unzip|curl' \
+   32  12/06/25 15:42:04 || echo -e "\nIssues with installation"
+   33  12/06/25 15:42:34 sudo apt install php php-cli php-mbstring php-xml php-bcmath php-curl php-zip php-mysql unzip curl git -y && echo -e "\nInstalled Successfully:\n" && dpkg -l | grep -E 'php|unzip|curl|git' || echo -e "\nIssues with installation"
+   34  12/06/25 15:44:29 cd /tmp/
+   35  12/06/25 15:45:18 curl -sS https://getcomposer.org/installer | php
+   36  12/06/25 15:45:35 ls -l
+   37  12/06/25 15:46:36 mv composer.phar /usr/local/bin/composer
+   38  12/06/25 15:46:43 composer --version
+   39  12/06/25 15:47:23 cd ~
+   40  12/06/25 15:47:29 cd /var/www/
+   41  12/06/25 15:47:57 composer create-project laravel/laravel app02
+   42  12/06/25 15:48:37 chown -R www-data:www-data /var/www/app02
+   43  12/06/25 15:49:10 nano /etc/apache2/sites-available/app02.conf
+   44  12/06/25 15:49:30 ls -l nano /etc/apache2/sites-available
+   45  12/06/25 15:51:07 sudo apt install apache2 libapache2-mod-php -y
+   46  12/06/25 15:51:21 sudo nano /etc/apache2/sites-available/app02.conf
+   47  12/06/25 15:54:31 a2ensite app02.conf
+   48  12/06/25 15:54:43 a2enmod rewrite
+   49  12/06/25 15:54:52 systemctl restart apache2
+   50  12/06/25 15:55:00 systemctl reload apache2
+   51  12/06/25 15:56:32 cat /var/www/app02.env
+   52  12/06/25 15:57:04 ls -l /var/www/app02/
+   53  12/06/25 16:16:42 la -l /etc/apache2/sites-available/
+   54  12/06/25 16:18:32 apche2ctl -S
+   55  12/06/25 16:18:39 apache2ctl -S
+   56  12/06/25 16:20:34 a2dissite 000-default.conf
+   57  12/06/25 16:21:06 a2ensite app01.conf
+   58  12/06/25 16:21:21 a2ensite app02.conf
+   59  12/06/25 16:21:52 systemctl reload apache2
+   60  12/06/25 16:22:50 nano /var/www/app02/.env
+   61  12/06/25 16:25:37 apt install mysql-client -y
+   62  12/06/25 16:26:58 mysql -h 10.100.93.8 -u laravel_user -p
+   63  12/06/25 16:34:45 php artisan config:clear
+   64  12/06/25 16:35:10 exit
+   65  19/06/25 13:51:21 history

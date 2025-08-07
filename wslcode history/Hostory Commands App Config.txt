@@ -1,0 +1,148 @@
+ sudo -i
+    2  sudo -i
+    3  php -b
+    4  php -v
+    5  clear
+    6  sudo apt update
+    7  sudo apt upgrade -y
+    8  lsblk
+    9  sudo fdisk /dev/sdb
+   10  lsblk
+   11  sudo pvcreate /dev/sdb1
+   12  sudo vgcreate vg_app /dev/sdb1
+   13  sudo lvcreate -n www -L 5G vg_app
+   14  sudo mkfs.ext4 /dev/vg_app/www
+   15  sudo mkdir -p /var/www
+   16  echo '/dev/vg_app/www /var/www ext4 defaults 0 2' | sudo tee -a /etc/fstab
+   17  cat /etc/fstab
+   18  sudo mount -a
+   19  lsblk
+   20  sudo systemctl daemon-reload
+   21  sudo apt update && apt upgrade -y
+   22  sudo apt install php php-cli php-mbstring php-xml php-bcmath php-curl php-zip php-mysql unzip curl -y
+   23  sudo apt install php php-cli php-mbstring php-xml php-bcmath php-curl php-zip php-mysql unzip curl git -y && echo -e "\nInstalled Successfully:\n" && dpkg -l | grep -E 'php|unzip|curl|git' || echo -e "\nIssues with installation"
+   24  cd /tmp/
+   25  curl -sS https://getcomposer.org/installer | php
+   26  sudo mv composer.phar /usr/local/bin/composer
+   27  ls -l
+   28  cd ~
+   29  composer --version
+   30  cd /var/www
+   31  pwd
+   32  lsblk
+   33  sudo composer create-project laravel/laravel app01
+   34  composer create-project laravel/laravel app01
+   35  sudo composer create-project laravel/laravel app01
+   36  lsblk
+   37  sudo chown -R www-data:www-data /var/www/app01
+   38  sudo apt install apache2 libapache2-mod-php -y && echo -e \nInstalled successfully:\n && dpkg -l | grep -E 'apache2|libapache2-mod-php' \
+   39  sudo apt isntall apache2 libapache2-mod-php -y && echo -e "\nInstalled Successfully:\n" && dpkg -l | grep -E 'apache2|libapache2-mod-php' || echo -e "\nErro at installation"
+   40  sudo apt install apache2 libapache2-mod-php -y && echo -e "\nInstalled Successfully:\n" && dpkg -l | grep -E 'apache2|libapache2-mod-php' || echo -e "\nErro at installation"
+   41  sudo nano /etc/apache2/sites-available/app01.conf
+   42  sudo a2ensite app01.conf
+   43  systemctl status apache2
+   44  systemctl reload apache2
+   45  sudo a2ensite app01.conf
+   46  sudo a2enmod rewrite
+   47  systemctl restart apache2
+   48  hostname -i
+   49  sudo ls /etc/apache2/sites-available/
+   50  sudo apache2ctl -s
+   51  sudo apache2ctl -S
+   52  sudo a2dissite 000-default.conf
+   53  sudo a2ensite app01.conf
+   54  sudo systemctl reload apache2
+   55  ls /var/www/app01/public/
+   56  sudo systemctl restart apache2
+   57  cat /etc/host
+   58  cat /etc/hosts
+   59  sudo nano /etc/hosts
+   60  systemctl restart apache2
+   61  cat /etc/hosts
+   62  sudo apt updated
+   63  sudo apt update
+   64  sudo apt install avahi-daemon -y && echo -e "\nInstalled Successfully:\n" && dpkg -l | grep -E 'avahi-daemon' \
+   65  sudo hostnamectl set-hostname app01
+   66  hostname
+   67  sudo systemctl restart && status avahi-daemon
+   68  sudo systemctl restart avahi-daemon
+   69  sudo systemctl status avahi-daemon
+   70  ping app01.local
+   71  sudo nano /var/www/app01/.env
+   72  systemctl restart apache2
+   73  mysql-client --version
+   74* sudo apt install mysql-client -
+   75  mysql -h 10.100.93.8 -u laravel_user -p
+   76  nano /var/www/app01/.env
+   77  sudo nano /var/www/app01/.env
+   78  sudo systemctl restart apache2
+   79  mysql -h 10.100.93.8 -u laravel_user -p
+   80  sudo nano /var/www/app01/.env
+   81  sudo systemctl restart apache2
+   82  cd /var/www/app01
+   83  sudo php artisan migrate
+   84  php artisan config:clear
+   85  php artisan cache:clear
+   86  lsblk
+   87  sudo chown -R www-data:www-data /var/www/app01
+   88  sudo chown -R /var/www/app01/storage/ /var/www/app01/bootstrap/cache
+   89  ls -l /var/www/app01/
+   90  ls -l /var/www/app01/storage/
+   91  php artisan config:clear
+   92  php artisan cache:clear
+   93  php artisan config:cache
+   94  php artisan migrate
+   95  ls -ld /var/www/app01
+   96  ls -ld /var/www/app01/storage/
+   97  sudo chown -R www-data:www-data storage bootstrap/cache
+   98  php artisan config:clear
+   99  php artisan cache:clear
+  100  sudo nano /var/www/app01/.env
+  101  sudo systemctl restart apache
+  102  sudo systemctl restart apache2
+  103  php artisan tinker
+  104  sudo php artisan config:clear
+  105  sudo php artisan cache:clear
+  106  ping 10.100.93.8
+  107  sudo grep bind-address /etc/mysql/mysql.conf.d/mysqld.cnf
+  108  ls -l /etc/mysql/
+  109  sudo find /etc/mysql/ -type f -name "*.cnf"
+  110  sudo nano /etc/mysql/conf.d/mysql.cnf
+  111  sudo cat /etc/mysql/conf.d/mysql.cnf
+  112  ls -l /etc/mysql/conf.d/
+  113  sudo ss -tuln | grep 3306
+  114  sudo ss -tuln | grep 36354
+  115  mysql -h 10.100.93.8 -u laravel_user -p
+  116  php artisan migrate
+  117  sudo chown -R www-data:www-data /var/www/app01
+  118  sudo chmod -R 775 /var/www/app01/storage /var/www/app01/bootstrap/cache
+  119  php artisan migrate
+  120  sudo php artisan migrate
+  121  php artisan tinker
+  122  sudo php artisan config:clear
+  123  sudo php artisan config:cache
+  124  sudo systemctl restart apache2
+  125  sudo php artisan migrate
+  126  sudo systemctl restart apache2
+  127  sudo php artisan migrate
+  128  nano /var/www/app01/.env
+  129  sudo nano /var/www/app01/.env
+  130  sudo systemctl restart apache2
+  131  sudo php artisan config:clear
+  132  sudo php artisan config:cache
+  133  sudo php artisan migrate
+  134  sudo php artisan tinker
+  135  sudo nano /var/www/app01/.env
+  136  sudo systemctl restart apache2
+  137  sudo php artisan config:clear
+  138  sudo php artisan config:cache
+  139  sudo php artisan migrate
+  140  sudo nano /var/www/app01/.env
+  141  sudo php artisan migrate
+  142  cat /var/www/app01/.env | grep DB_DATABASE
+  143  sudo php artisan config:clear
+  144  sudo php artisan cache:clear
+  145  sudo php artisan tinker
+  146  sudo php artisan config:cache
+  147  sudo php artisan migrate
+  148  history

@@ -1,0 +1,251 @@
+root@DSI-SAS-Lab-Test-01Prx02:/etc/ssl/app.lab.local# history | awk '{$1=$2=$3=""; print $0}' | sed 's/^ *//'
+history -w
+history -w
+apt update
+apt upgrade -y
+hostname
+exit
+systemctl status keepalived
+ip a
+sudo nano /etc/keepalived/keepalived.conf
+systemctl status keepalived
+ip a
+sudo systemctl restart keepalived
+sudo nano /etc/keepalived/keepalived.conf
+ip -a
+ip a
+sudo nano /etc/keepalived/keepalived.conf
+systemctl restart keepalived
+systemctl status keepalived
+ip a
+sudo nano /etc/keepalived/keepalived.conf
+systemctl stop keepalived
+systemctl start keepalived
+ip a | grep 10.100.93.2
+sudo nano /etc/keepalived/keepalived.conf
+ip a
+systemctl stop nginx
+ip a
+systemctl start nginx
+sudo nano /etc/keepalived/keepalived.conf
+systemctl restart keepalived
+systemctl stop nginx
+systemctl status nginx
+systemctl stop nginx
+ip a
+sudo nano /etc/keepalived/keepalived.conf
+nano /bin/check_nginx.sh
+chmod 755 /bin/check_nginx.sh
+nano /bin/check_nginx.sh
+sudo nano /etc/keepalived/keepalived.conf
+systemctl restart keepalived
+systemctl start nginx
+sudo nano /etc/keepalived/keepalived.conf
+systemctl restart keepalived
+systemctl stop nginx
+sudo nano /etc/keepalived/keepalived.conf
+ip a
+sudo nano /etc/keepalived/keepalived.conf
+systemctl restart keepalived
+ip a
+systemctl status keepalived
+systemctl start nginx
+systemctl status keepalived
+systemctl restart keepalived
+systemctl status keepalived
+systemctl stop nginx
+ip a
+sudo nano /etc/keepalived/keepalived.conf
+pidof nginx && echo "NGINX работает" || echo "NGINX НЕ работает"
+systemctl start nginx
+pidof nginx && echo "NGINX работает" || echo "NGINX НЕ работает"
+nano /etc/keepalived/check_nginx.sh
+chmod +x /etc/keepalived/check_nginx.sh
+sudo nano /etc/keepalived/keepalived.conf
+journalctl -fu keepalived
+chmod +x /etc/keepalived/check_nginx.sh
+sudo nano /etc/keepalived/keepalived.conf
+systemctl restart keepalived
+systemclt status nginx
+systemctl status nginx
+systemctl start nginx
+sudo nano /etc/keepalived/keepalived.conf
+systemctl status keepalived
+sudo nano /etc/keepalived/keepalived.conf
+systemctl stop keepalived
+systemctl start keepalived
+systemctl status keepalived
+ip a
+systemctl stop nginx
+ip a
+clear
+history
+clear
+systectl start nginx
+systemctl start nginx
+nano /etc/keepalived/check_nginx.sh
+chmod +x /etc/keepalived/check_nginx.sh
+systemctl restart keepalived
+systemctl enable keepalived
+systemctl stop nginx
+systemctl start nginx
+sudo nano /etc/keepalived/check_nginx.sh
+nano /etc/keepalived/keepalived.conf
+sudo nano /etc/keepalived/keepalived.conf
+ip a
+w
+nano /etc/keepalived/keepalived.conf
+ip a
+systemctl status nginx
+w
+systemctl status keeaplived
+systemctl status kepalived
+systemctl status keepalived
+nano /etc/keepalived/
+nano /etc/keepalived/keepalived.conf
+nano /tmp/checkowner.sh
+chmod +x /tmp/checkowner.sh
+. /tmp/checkowner.sh
+ip a | grep 10.100.93.2
+nano /etc/keepalived/keepalived.conf
+systemctl restart keepalived
+ip a | grep 10.100.93.2
+systemctl stop nginx
+systemctl start nginx
+ip a | grep 10.100.93.2
+nano /etc/keepalived/keepalived.conf
+systemctl restart keepalived
+journalctl -fu keepaliced
+journalctl -fu keepalived
+nano /etc/keepalived/keepalived.conf
+sudo systemctl restart keepalived
+apt install tcpdump
+tcpdump -ni ens192
+ip -a
+ip a
+sudo apt install iptables
+apt install netfilter-persistent
+iptables -L -n -v
+find / -name iptables
+find / -name iptables-save
+cat /usr/sbin/iptables-save
+find / -name iptables-save
+nano /usr/sbin/iptables-save
+sudo /usr/sbin/iptables-save > /tmp/iptables-save-default.conf
+chmod +x /tmp/iptables-save-default.conf
+nano /tmp/iptables-save-default.conf
+apt install iptables iptables-persistent
+sudo /usr/sbin/iptables-save > /tmp/iptables-save-default.conf
+nano /tmp/iptables-save-default.conf
+iptables -L -n -v
+iptable -L INPUT --line-numbers
+iptables -L INPUT --line-numbers
+sudo iptables -F
+sudo iptables -A INPUT -i lo -j ACCEPT
+sudo iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 22 -s 172.29.31.0/24 -j ACCEPT
+sudo iptables -A INPUT -p tcp -m multiport --dports 80,443 -j ACCEPT
+sudo iptables -I INPUT -p icmp --icmp-type echo-request -s 172.29.31.0/24 -j ACCEPT
+sudo iptables -P INPUT DROP
+sudo iptables -P FORWARD DROP
+sudo iptables -P OUTPUT ACCEPT
+iptables -L -n -v
+iptables netfilter-persistent
+apt install netfilter-persistent
+netfilter-persistent save
+iptables -L -n -v
+ip a
+sudo reboot
+tcdump -ni ens192
+tcpdump -ni ens192
+apt install nmap
+nmap 10.100.93.4
+nmap 10.100.93.2
+iptables -L INPUT --line-numbers
+sudo iptables -I INPUT 1 -p icmp --icmp-type echo-request -s 172.29.31.16/28 -j ACCEPT
+iptables -L INPUT --line-numbers
+iptables -D INPUT 2
+iptables -L INPUT --line-numbers
+iptables -I INPUT 4 -p tcp --dport 22 -s 172.29.31.16/28 -j ACCEPT
+iptables -L INPUT --line-numbers
+iptables -D INPUT 5
+iptables -L INPUT --line-numbers
+netfilter-persistent save
+namp 10.100.93.2
+apt install nmap -y
+apt install namp -y
+namp 10.100.93.3
+nmap 10.100.93.3
+sudo ss -tuln | grep -E '80|443'
+sysmtectl status bind
+sysmtectl status named
+apt install dnsmasq
+nano /etc/dnsmasq.d/local_dns.conf
+systemctl start dnsmasq
+systemctl stop dnsmasq
+iptables -L -v -n
+iptables -L INPUT --line-numbers
+iptables -I INPUT 4 -p udp -s 172.29.31.16/28 --dport 53 -J ACCEPT
+iptables -I INPUT 4 -p udp -s 172.29.31.16/28 --dport 53 -j ACCEPT
+iptables -L INPUT --line-numbers
+iptables -I INPUT 5 -p tcp -s 172.29.31.16/28 --dport 53 -j ACCEPT
+netfilter-persistent save
+systemctl start dnsmasq
+systemctl status dnsmasq
+nano /etc/dnsmasq.d/local_dns.conf
+systemctl start dnsmasq
+systemctl status dnsmasq
+sudo ss -upan 'sport = :domain' || sudo lsof -i UDP:53
+ls -l /proc/720/fd/16
+ls -l /proc/720/
+ls -l /proc/720/fd
+ls -l /proc/720/fd/16
+sudo ss -tuln 'sport = :53'
+nano /etc/systemd/resolved.conf
+systemctl stop systemd
+systemctl stop systemd.service
+systemctl restart systemd-resolved
+systemctl start dnsmasq
+systemctl enable dnsmasq
+systemctl status dnsmasq
+journalctl -xeu dnsmasq.service
+sudo cat /var/log/syslog | grep dnsmasq
+ip a
+sudo cat /var/log/syslog | grep dnsmasq
+systemctl status dnsmasq
+nano /etc/systemd/resolved.conf
+nano /etc/dnsmasq.d/local_dns.conf
+systemctl restart dnsmasq
+nano /etc/dnsmasq.d/local_dns.conf
+systemctl stop dnsmasq
+systemctl disable dnsmasq
+ls -l /etc/resolvconf/
+ls -l /etc/resolvconf/update.d/
+vim /etc/resolvconf/update.d/dnsmasq
+find / -name dnsmasq
+systemtl status dnsmasq
+systemctl status dnsmasq
+apt remove dnsmasq -y
+find / -name dnsmasq
+sudo rm -rf /etc/default/dnsmasq /etc/init.d/dnsmasq /etc/insserv.conf.d/dnsmasq /etc/resolvconf/update.d/dnsmasq /run/dnsmasq /usr/sbin/dnsmasq
+find / -name dnsmasq
+sudo find / -type f -iname "*dnsmasq*" 2>/dev/null
+sudo rm -rf /var/lib/dpkg/info/dnsmasq-base.list /var/lib/dpkg/info/dnsmasq-base.md5sums /var/lib/dpkg/info/dnsmasq-base.postinst /var/lib/dpkg/info/dnsmasq-base.postrm /var/lib/dpkg/info/dnsmasq-base.preinst /var/lib/dpkg/info/dnsmasq-base.prerm /var/lib/dpkg/info/dnsmasq.list /var/lib/dpkg/info/dnsmasq.postrm /var/lib/systemd/deb-systemd-helper-enabled/multi-user.target.wants/dnsmasq.service /var/lib/systemd/deb-systemd-helper-enabled/dnsmasq.service.dsh-also /etc/dnsmasq.conf /usr/share/dbus-1/system.d/dnsmasq.conf /usr/share/vim/vim91/syntax/dnsmasq.vim
+sudo find / -type f -iname "*dnsmasq*" 2>/dev/null
+systemctl status keepalived
+systemctl status nginx
+ip a
+ls -ld /tmp/
+ls -l /tmp/
+whoami
+netstat -tulnp | grep 80 | grep nginx
+sudo mkdir -p /etc/ssl/app.lab.local
+cd /etc/ssl/app.lab.local
+nano /etc/ssl/app.lab.local/app.lab.local.crt
+nano /etc/ssl/app.lab.local/app.lab.local.key
+nano /etc/nginx/sites-available/app-lb2.conf
+nginx -t
+systemctl reload nginx
+sudo iptables -L INPUT --line-numbers
+sudo ss -tuln
+history | awk '{$1=$2=$3=""; print $0}' | sed 's/^ *//'

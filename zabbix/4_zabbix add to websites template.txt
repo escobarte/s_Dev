@@ -1,0 +1,18 @@
+Creata a host:
+Web stisc.gov.md
+Templates: Websites by browser
+
+Web Scenario:
+Name: check  {$WEBSITE.DOMAIN}
+Steps:
+Name: {$WEBSITE.DOMAIN}
+URL: https://{$WEBSITE.DOMAIN}
+Required status codes: 200,201,202,203,204,205,206,207,208,226,300,301,302,303,304,305,306,307,308
+
+Triggers: Create
+
+Name: Site {$WEBSITE.DOMAIN} is not available
+Siverity: Disaster
+
+Expressios: 
+last(/WEB stisc.gov.md/web.test.fail[check  {$WEBSITE.DOMAIN}],#2)<>0 and last(/WEB stisc.gov.md/web.test.fail[check  {$WEBSITE.DOMAIN}])<>0

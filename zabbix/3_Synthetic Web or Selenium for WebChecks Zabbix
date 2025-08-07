@@ -1,0 +1,14 @@
+How to Selenium or Synthetic web on Zabbix
+https://www.zabbix.com/documentation/7.4/en/manual/guides/monitor_browser?hl=Selenium
+
+<<<Important>>>
+docker run --name browser \
+--restart unless-stopped \
+-p 4444:4444 \
+-p 7900:7900 \
+--shm-size="2g" \
+-d selenium/standalone-chrome:latest
+
+ip addr | grep docker0 
+nc -zv 172.17.0.1 4444
+curl -L 172.17.0.1:4444

@@ -1,0 +1,154 @@
+=======================================================================
+		Prometheus + Grafana + Loki через Docker Compose
+======================================================================
+ 
+ 1. Создание LVM и папок
+ 2. Права на папки
+ 3. Подготовка конфигов
+ 4. docker-compose.yaml
+ 5. Развернуть и проверить
+
+
+-|--|--|--|--|--|--|--|--|--|--|--|--|-
+-|-	 1. Создание LVM и папок  -|--|--|-
+-|--|--|--|--|--|--|--|--|--|--|--|--|-	 
+#LVM created
+/dev/sdb3       79693824 167772159 88078336   42G  5 Extended
+/dev/sdb5       79695872  85555199  5859328  2.8G 8e Linux LVM
+/dev/sdb6       85557248  91416575  5859328  2.8G 8e Linux LVM
+/dev/sdb7       91418624 105091071 13672448  6.5G 8e Linux LVM
+#Folders created
+/mnt/prometheus_data = 3GB
+/mnt/grafana_data = 3 GB
+/mnt/loki_data = 6 GB
+	/mnt/loki_data/wal
+/opt/monitoring-stack
+# Code:
+1. Создаём физичесекий вольюм
+pvcreate /dev/sdb5
+2. Создаём Volume Group
+vgcreate vg_prom /dev/sdb5
+3.Создаём Logical Volume 
+lvcreate -n prometheus -L 2.75G vg_prom
+4. Форматируем 
+mkfs.ext4 /dev/mapper/vg_prom-prometheus
+5. Создаём нужную дирректорию и монтируем её на vg_prom-prometheus
+mkdir -p /mnt/prometheus_data
+mount /dev/mapper/vg_prom-prometheus /mnt/prometheus_data/
+6. Прописываем в fstab
+echo '/dev/vg_prom/prometheus /mnt/prometheus_data ext4 defaults 2 0' | sudo tee -a /etc/fstab
+
+-|--|--|--|--|--|--|--|--|--|--|--|--|-
+-|-	 2. Права на папки        -|--|--|-
+-|--|--|--|--|--|--|--|--|--|--|--|--|-	 
+
+chown -R 472:472 /mnt/grafana_data
+chmod -R 755 /mnt/grafana_data
+chown -R 10001:10001 /mnt/loki_data
+chmod -R 755 /mnt/loki_data
+mkdir -p /mnt/loki_data/wal
+chown -R 10001:10001 /mnt/loki_data/wal
+chmod -R 755 /mnt/loki_data/wal
+
+-|--|--|--|--|--|--|--|--|--|--|--|--|-
+-|-	 2. Подготовка конфигов   -|--|--|-
+-|--|--|--|--|--|--|--|--|--|--|--|--|-
+
+>>>/mnt/prometheus_data/prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+>>>>/mnt/loki_data/local-config.yaml
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+ingester:
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+
+storage_config:
+  boltdb:
+    directory: /etc/loki/index
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: boltdb
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 168h
+
+limits_config:
+  allow_structured_metadata: false
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+
+table_manager:
+  retention_deletes_enabled: false
+  retention_period: 0s
+
+
+-|--|--|--|--|--|--|--|--|--|--|--|--|-
+-|-	 4. docker-compose.yaml   -|--|--|-
+-|--|--|--|--|--|--|--|--|--|--|--|--|-
+
+! Файл должен находится в /opt/monitoring-stack
+>>>>docker-compose.yaml<<<<
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - /mnt/prometheus_data:/etc/prometheus
+    ports:
+      - "9090:9090"
+    restart: always
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+      - /mnt/grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    restart: always
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    volumes:
+      - /mnt/loki_data:/etc/loki
+      - /mnt/loki_data/wal:/wal
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    restart: always
+
+-|--|--|--|--|--|--|--|--|--|--|--|--|-
+-|-	 4. Развернуть и проверить-|--|--|-
+-|--|--|--|--|--|--|--|--|--|--|--|--|-
+
+cd /opt/monitoring-stack
+docker compose up -d
+docker ps
+``` Cheking
+10.100.93.5:9090
+10.100.93.5:3000
