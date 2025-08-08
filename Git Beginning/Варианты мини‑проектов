@@ -1,0 +1,225 @@
+Окей, давай быстро набросаем варианты «простого, но настоящего» CI/CD и выберем, с чего стартуем.
+
+# Варианты мини‑проектов
+
+1. **Laravel + Nginx + PHP‑FPM на 1–2 серверах (без Docker)**
+
+* Стейджи: `lint → test → build → deploy`.
+* Деплой через `rsync/ssh` на `/var/www/app/releases/<ts>` + symlink `current` → zero‑downtime.
+* Миграции: `php artisan migrate --force` (после переключения или до — по ситуации).
+* Секреты: `.env` живёт на сервере (никогда в артефакте).
+* Простой, быстрый старт. Отлично для начала.
+
+2. **Laravel в Docker + docker‑compose на сервере**
+
+* Стейджи: `lint → test → build-image → push → deploy`.
+* Сборка образа в CI, пуш в GitLab Registry, на сервере `docker compose pull && up -d`.
+* Секреты из `.env` на сервере. Нужен установленный docker/docker‑compose.
+
+3. **Blue‑Green для Laravel (без Docker)**
+
+* Две папки: `releases/green` и `releases/blue`, Nginx upstream переключается симлинком/конфигом.
+* Даёт безопасные откаты.
+
+4. **Review Apps для фич‑веток (Docker)**
+
+* На сервере динамически поднимаешь контейнеры `app-pr-<id>`.
+* Полезно, если хочешь визуально ревьюить.
+
+5. **Докер‑образ + Kubernetes (на будущее)**
+
+* Когда созреешь для K8s — тот же образ, деплоим через Helm.
+
+---
+
+# Рекомендую стартовать с №1 (самый быстрый победный цикл)
+
+## Мини-инфра
+
+* `prx01/prx02` — Nginx (балансировщики) — уже есть.
+* `app01` — PHP‑FPM + Laravel код.
+* `db01` — MariaDB/Postgres (одна БД на начало).
+* GitLab Runner: shell или docker на любом хосте (можно на `app01` для простоты).
+
+## Скелет `.gitlab-ci.yml` (без Docker, артефакты + rsync)
+
+```yaml
+stages: [lint, test, build, deploy]
+
+variables:
+  APP_NAME: mylaravel
+  DEPLOY_USER: deploy
+  DEPLOY_HOST: app01
+  DEPLOY_PATH: /var/www/mylaravel
+  SSH_OPTS: "-o StrictHostKeyChecking=no"
+
+cache:
+  key: "composer"
+  paths: [vendor/]
+
+lint:
+  stage: lint
+  script:
+    - php -v
+    - composer validate --no-interaction
+    - ./vendor/bin/pint --test || true   # если используешь laravel/pint
+
+test:
+  stage: test
+  script:
+    - cp .env.example .env
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress
+    - php artisan key:generate
+    - php artisan config:cache
+    - ./vendor/bin/phpunit --colors=always
+
+build:
+  stage: build
+  script:
+    - composer install --prefer-dist --no-dev --no-ansi --no-interaction --no-progress
+    - php artisan config:cache
+    - php artisan route:cache || true
+  artifacts:
+    paths:
+      - vendor/
+      - app/
+      - bootstrap/
+      - config/
+      - public/
+      - resources/
+      - routes/
+      - storage/
+      - artisan
+      - composer.json
+      - composer.lock
+    expire_in: 1 week
+
+deploy:
+  stage: deploy
+  when: manual   # можно убрать для авто-деплоя с main
+  environment:
+    name: production
+    url: https://your-domain
+  before_script:
+    - 'which rsync || sudo apt-get update && sudo apt-get install -y rsync'
+  script:
+    - RELEASE=$(date +%Y%m%d%H%M%S)
+    - ssh $SSH_OPTS $DEPLOY_USER@$DEPLOY_HOST "mkdir -p $DEPLOY_PATH/releases/$RELEASE $DEPLOY_PATH/shared"
+    - rsync -az --delete \
+        --exclude ".env" \
+        --exclude "storage/logs/*.log" \
+        ./ $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/releases/$RELEASE/
+    - ssh $SSH_OPTS $DEPLOY_USER@$DEPLOY_HOST "
+        if [ ! -d $DEPLOY_PATH/shared/storage ]; then
+          mkdir -p $DEPLOY_PATH/shared/storage && cp -r $DEPLOY_PATH/releases/$RELEASE/storage/* $DEPLOY_PATH/shared/storage/ 2>/dev/null || true;
+        fi &&
+        rm -rf $DEPLOY_PATH/releases/$RELEASE/storage &&
+        ln -s $DEPLOY_PATH/shared/storage $DEPLOY_PATH/releases/$RELEASE/storage &&
+        ln -sfn $DEPLOY_PATH/shared/.env $DEPLOY_PATH/releases/$RELEASE/.env &&
+        cd $DEPLOY_PATH/releases/$RELEASE &&
+        php artisan storage:link || true &&
+        php artisan migrate --force &&
+        ln -sfn $DEPLOY_PATH/releases/$RELEASE $DEPLOY_PATH/current &&
+        sudo systemctl reload php8.2-fpm || sudo systemctl reload php-fpm
+      "
+```
+
+### Что нужно подготовить на `app01`
+
+* Создать пользователя `deploy` с SSH‑доступом (добавить CI SSH ключ в GitLab → Variables как `DEPLOY_KEY`, и вставить в `~deploy/.ssh/authorized_keys`).
+* Директории:
+
+  ```
+  sudo mkdir -p /var/www/mylaravel/{releases,shared}
+  sudo chown -R deploy:www-data /var/www/mylaravel
+  ```
+* Положить рабочий `.env` в `/var/www/mylaravel/shared/.env`.
+* PHP‑FPM + Nginx на `app01` настроить так, чтобы корень указывал на `/var/www/mylaravel/current/public`.
+* Права на `storage` (общая папка `shared/storage` линком внутрь релиза).
+
+### Быстрый откат
+
+* Храни пару прошлых релизов в `releases/`.
+* Откат: `ln -sfn /var/www/mylaravel/releases/<prev> /var/www/mylaravel/current && systemctl reload php-fpm`.
+
+---
+
+# Если хочешь с Docker (вариант №2) — минимальный скелет
+
+**Dockerfile (prod)**
+
+```dockerfile
+FROM php:8.2-fpm
+RUN apt-get update && apt-get install -y git unzip libpq-dev libonig-dev libzip-dev && docker-php-ext-install pdo pdo_mysql
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+WORKDIR /var/www/html
+COPY . .
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress \
+ && php artisan config:cache && php artisan route:cache || true
+```
+
+**docker-compose.yml (на сервере)**
+
+```yaml
+services:
+  app:
+    image: registry.gitlab.com/your/ns/yourapp:${TAG}
+    env_file: .env
+    volumes:
+      - ./storage:/var/www/html/storage
+    networks: [appnet]
+  web:
+    image: nginx:stable
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports: ["80:80"]
+    depends_on: [app]
+    networks: [appnet]
+networks:
+  appnet: {}
+```
+
+**.gitlab-ci.yml (сборка+деплой)**
+
+```yaml
+stages: [lint, test, build, deploy]
+
+build-image:
+  stage: build
+  image: docker:24
+  services: [docker:24-dind]
+  variables: { DOCKER_DRIVER: overlay2 }
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - export TAG=$CI_COMMIT_SHORT_SHA
+    - docker build -t $CI_REGISTRY_IMAGE:$TAG .
+    - docker push $CI_REGISTRY_IMAGE:$TAG
+  artifacts:
+    reports: {}
+  only: [main]
+
+deploy:
+  stage: deploy
+  when: manual
+  script:
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "
+        cd /opt/yourapp &&
+        sed -i 's/^TAG=.*/TAG=$CI_COMMIT_SHORT_SHA/' .env.deploy || echo TAG=$CI_COMMIT_SHORT_SHA >> .env.deploy &&
+        export \$(cat .env.deploy | xargs) &&
+        docker compose pull && docker compose up -d --remove-orphans
+      "
+```
+
+---
+
+# Чек‑лист безопасности и устойчивости
+
+* **Секреты** только из переменных GitLab/файлов на сервере (никогда в репо).
+* **Миграции**: предусмотреть откат `migrate:rollback` или совместимость схемы.
+* **Healthcheck** и быстрый фэйл деплоя (curl на `/health` после релиза).
+* **Логи**: централизуй (journald → Loki/ELK) по возможности.
+* **Нотификации**: Telegram/Slack webhooks из CI на `deploy`.
+
+---
+
+Хочешь идти с **№1 (без Docker)** или **№2 (Docker + compose)**? Скажи, какой вариант и где мы деплоим (имена серверов). Я дам конкретный пошаговый план под твои хосты и сразу минимальные таски Ansible/скрипты для подготовки.
