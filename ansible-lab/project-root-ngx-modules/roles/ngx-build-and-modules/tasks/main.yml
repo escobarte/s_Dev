@@ -203,19 +203,19 @@
   tags: geoip2
 
 # NGINX CONF & LOAD_MODULE
-- name: Ensure load_module line for GeoIP2 в начале nginx.conf
-  lineinfile:
-    path: /etc/nginx/nginx.conf
-    line: 'load_module modules/ngx_http_geoip2_module.so;'
-    insertafter: BOF
-    state: present
+# - name: Ensure load_module line for GeoIP2 в начале nginx.conf
+#   lineinfile:
+#     path: /etc/nginx/nginx.conf
+#     line: 'load_module modules/ngx_http_geoip2_module.so;'
+#     insertafter: BOF
+#     state: present
 
-- name: Ensure load_module line for ModSecurity в начале nginx.conf
-  lineinfile:
-    path: /etc/nginx/nginx.conf
-    line: 'load_module modules/ngx_http_modsecurity_module.so;'
-    insertafter: 'load_module modules/ngx_http_geoip2_module.so;'
-    state: present
+# - name: Ensure load_module line for ModSecurity в начале nginx.conf
+#   lineinfile:
+#     path: /etc/nginx/nginx.conf
+#     line: 'load_module modules/ngx_http_modsecurity_module.so;'
+#     insertafter: 'load_module modules/ngx_http_geoip2_module.so;'
+#     state: present
 
 # START
 - name: Запустить и включить Nginx
