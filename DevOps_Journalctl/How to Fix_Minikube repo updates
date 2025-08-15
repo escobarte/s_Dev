@@ -1,0 +1,24 @@
+How to Fix
+Remove the old repository file:
+
+Bash
+
+sudo rm /etc/apt/sources.list.d/kubernetes.list
+Add the new GPG key for Kubernetes:
+
+Bash
+
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+Add the new repository for your system:
+
+Bash
+
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+Note: The version v1.28 is a placeholder; you may need to adjust this to the specific Kubernetes version you want to install.
+
+Update your package list:
+
+Bash
+
+sudo apt update
+This will remove the old, broken repository and allow apt to find the correct one, resolving the error.

@@ -1,0 +1,8 @@
+1. Сделать *Recap* and **GUIDE** по развёртыванию проекта Laravel										[Done]
+1.1 Created How To (Clear Laravel & Deploy & Test) on prepared environment (laravel and php installed)  [Done]
+2. Сделать на 10.100.93.6 server ещё одно (возможно другого проекта) с нуля								[Done]
+3. Сделать развёртывание через **Docker**
+4. CD из пункта **2**
+5. Ci/Cd из пункта **3**
+
+

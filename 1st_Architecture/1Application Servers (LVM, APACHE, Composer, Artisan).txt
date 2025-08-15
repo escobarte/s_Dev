@@ -12,24 +12,27 @@ mount -a
 sysmtectl daemon-reload
 
 					Step 2: Dependencies & Laravel
-	// PHP and Modules
+### PHP and Modules
 sudo apt install php php-cli php-mbstring php-xml php-bcmath php-curl php-zip php-mysql unzip curl git -y \
 && echo -e "\nInstalled Successfully:\n" && dpkg -l | grep -E 'php|unzip|curl|git' \
 || echo -e "\nIssues with installation" 
-		// Composer
+### Composer
 cd /tmp/
 curl -sS https://getcomposer.org/installer | php
-ls -l 							//-rwxr-xr-x 1 root root 3125568 Jun 12 15:45 composer.phar
+ls -l 													#-rwxr-xr-x 1 root root 3125568 Jun 12 15:45 composer.phar
 mv composer.phar /usr/local/bin/composer
 composer --version
-	// Laravel
+### Laravel
+```
 cd /var/www
-
 sudo composer create-project laravel/laravel app02
 sudo chown -R www-data:www-data /var/www/app02
-Create file	// VirtualHost .conf
+```
+# Create file	// VirtualHost .conf
 sudo nano /etc/apache2/sites-available/app02.conf
-!!!!!!!		///add this!!!!!!!!!
+
+# add this!!!!!!!!!
+```
 <VirtualHost *:80>
     ServerName app02.local
     DocumentRoot /var/www/app02/public
@@ -42,18 +45,23 @@ sudo nano /etc/apache2/sites-available/app02.conf
     ErrorLog ${APACHE_LOG_DIR}/app02_error.log
     CustomLog ${APACHE_LOG_DIR}/app02_access.log combined
 </VirtualHost>
-		///
+```
+
 a2dissite 000-default.conf			//Deactivating: 000-default.conf
 a2ensite app02.conf 				// Enabling site app02.
 a2enmod rewrite						// Enabling module rewrite.
 systemctl restart apache2
 systemctl reload apache2
-		/// Schimbam directoriul implicit pentru apache2
+## Schimbam directoriul implicit pentru apache2
+
 ls -l /etc/apache2/sites-available/  // app02.conf 
 apache2ctl -S 						// sites-enebled/000-default {to deactivate and activate app02}
 a2dissite 000-default.conf			//Site 000-default disabled.
 a2ensite app02.conf					//Site app02 already enabled
 systemctl reload apache2
+
+
+
 		//Connecting Laravel to DB 10.100.93.8
 nano /var/www/app02/.env
 DB_CONNECTION=mysql
