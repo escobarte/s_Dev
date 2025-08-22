@@ -51,3 +51,19 @@ parted /dev/sdb print free
 ps aux | grep nginx #process
 find / -iname '*nginx*'
 systemctl list-units | grep nginx
+
+
+df -Th     # типы + размеры в человеко-читаемом виде
+df -TG     # типы + строго в гигабайтах
+ls -lhtr   # старые файлы сверху
+ls -lhSr   # маленькие файлы сверху
+ls -lht   # новые файлы по дате изменения
+ls -lhu   # новые файлы по дате доступа
+ls -lhc   # новые файлы по изменению метаданных
+du -sh /var/log/* | sort -hr
+du -sh /var/lib/docker/containers
+ls -lhSr /var/log/
+
+df -h --total	#общее свободное место на сервере
+df -h --total | grep total
+

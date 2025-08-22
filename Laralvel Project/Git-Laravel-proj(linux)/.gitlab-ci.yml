@@ -1,0 +1,190 @@
+stages: [bootstrap, setup, configure, assets, web, finalize]
+
+install-dependencies:
+  stage: bootstrap
+  tags: ["n1-laravel"]   # ← замени на тег твоего раннера
+  before_script:
+    - export DEBIAN_FRONTEND=noninteractive
+    - export APT_LISTCHANGES_FRONTEND=none
+    - set -euxo pipefail
+  script:
+    - echo "==> OS info"; cat /etc/os-release
+    - sudo -n add-apt-repository -y ppa:ondrej/php
+    - sudo -n apt-get update
+    - sudo -n apt-get install -y lsb-release ca-certificates software-properties-common
+    # PHP из репозитория Ubuntu (8.3 на 24.04). Модули для Laravel:
+    - sudo -n apt-get install -y php php-cli php-mbstring php-xml php-bcmath php-curl php-zip php-mysql php-intl unzip curl git composer
+    - echo -e "\n==> Проверка установленных пакетов:"
+    - dpkg -l | egrep -i '^ii\s+(php|unzip|curl|git|composer)' || true
+    - echo -e "\n==> Версии:"
+    - php -v
+    - php -m | sort
+    - composer --version
+
+clone-and-configure:
+  stage: setup
+  tags: ["n1-laravel"]
+  variables:
+    DEPLOY_DIR: /var/www/app02
+    APP_REPO_URL: "https://github.com/guillaumebriday/laravel-blog.git"
+  before_script:
+    - set -euxo pipefail
+    - export COMPOSER_ALLOW_SUPERUSER=1
+  script:
+    - echo "==> Create directory"
+    - sudo -n mkdir -p "$DEPLOY_DIR"
+    - sudo -n chown -R $USER:$USER "$DEPLOY_DIR"
+
+    - echo "==> Clone repo"
+    - cd "$DEPLOY_DIR"
+    - git clone "$APP_REPO_URL" .
+
+    - echo "==> Copy .env.example → .env"
+    - cp .env.example .env
+
+    - echo "==> Composer install"
+    - composer install --no-interaction --prefer-dist
+
+env-and-migrate:
+  stage: configure
+  tags: ["n1-laravel"]   # ← твой тег раннера
+  variables:
+    DEPLOY_DIR: /var/www/app02
+  before_script:
+    - set -euxo pipefail
+  script:
+    - cd "$DEPLOY_DIR"
+    - '[ -f .env ] || cp .env.example .env'
+
+    # 1) Генерим ключ и забираем его в переменную (НЕ пишем в .env автоматически)
+    - KEY="$(php artisan key:generate --show | tail -n1 | tr -d '\r')"
+
+    # 2) Патчим .env (без APP_KEY)
+    - cp -a .env .env.bak
+    - |
+      cat >/tmp/.env.patch <<'EOF'
+      APP_NAME=Laravel
+      APP_ENV=production
+      APP_DEBUG=false
+      APP_URL=http://localhost
+      LOG_CHANNEL=stack
+
+      DB_CONNECTION=mysql
+      DB_HOST=10.100.93.8
+      DB_PORT=3306
+      DB_DATABASE=laravel
+      DB_USERNAME=laravel_user_app02
+      DB_PASSWORD=1323
+      EOF
+
+      while IFS='=' read -r K V; do
+        [ -z "$K" ] && continue
+        [ "$K" = "APP_KEY" ] && continue
+        if grep -qE "^${K}=" .env; then
+          sed -i "s|^${K}=.*|${K}=${V}|" .env
+        else
+          echo "${K}=${V}" >> .env
+        fi
+      done </tmp/.env.patch
+
+    # 3) Теперь явно вписываем сгенерированный APP_KEY
+    - if grep -q '^APP_KEY=' .env; then sed -i "s|^APP_KEY=.*|APP_KEY=${KEY}|" .env; else echo "APP_KEY=${KEY}" >> .env; fi
+    - grep '^APP_KEY=' .env | sed 's/.*\(........\)$/APP_KEY=***\1/'  # показываем только хвост для проверки
+
+    # 4) Симлинк для storage и миграции
+    - php artisan storage:link || true
+    - php artisan migrate:fresh --force
+
+prepare-frontend:
+  stage: assets
+  tags: ["n1-laravel"]   # ← тег твоего раннера
+  variables:
+    DEPLOY_DIR: /var/www/app02
+  before_script:
+    - set -euxo pipefail
+  script:
+    # Node.js 20 из NodeSource
+    - curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -n -E bash -
+    - sudo -n apt-get update
+    - sudo -n apt-get install -y nodejs
+    - node -v
+    - npm -v
+
+    # Переходим в проект
+    - cd "$DEPLOY_DIR"
+
+    # ВАЖНО: чтобы sudo -u www-data мог писать node_modules/build — дадим права
+    - sudo -n chown -R www-data:www-data "$DEPLOY_DIR"
+
+    # ВАЖНО: дать npm свой HOME и cache внутри проекта (владелец www-data)
+    - sudo -u www-data env HOME="$DEPLOY_DIR" mkdir -p "$DEPLOY_DIR/.npm-cache"
+    - sudo -u www-data env HOME="$DEPLOY_DIR" npm install --no-audit --no-fund --cache "$DEPLOY_DIR/.npm-cache"
+    - sudo -u www-data env HOME="$DEPLOY_DIR" npm run build
+
+    # Быстрая проверка артефактов сборки
+    - ls -la public/build || true
+
+apache-vhost:
+  stage: web
+  tags: ["n1-laravel"]        # ← тег раннера
+  variables:
+    DEPLOY_DIR: /var/www/app02
+    SERVER_NAME: "10.100.93.6"    # можно заменить на домен
+  before_script:
+    - set -euxo pipefail
+  script:
+    # 0) Установим Apache + mod_php 8.4 (для a2enmod php8.4)
+    - sudo -n apt-get update
+    - sudo -n apt-get install -y apache2 libapache2-mod-php8.4
+
+    # 1) Включаем нужные модули
+    - sudo -n a2enmod php8.4 rewrite headers env
+
+    # 2) Пишем vhost в /etc/apache2/sites-available/app02.conf
+    - |
+      sudo tee /etc/apache2/sites-available/app02.conf >/dev/null <<EOF
+      <VirtualHost *:80>
+          ServerName ${SERVER_NAME}
+          DocumentRoot ${DEPLOY_DIR}/public
+
+          <Directory ${DEPLOY_DIR}/public>
+              AllowOverride All
+              Require all granted
+          </Directory>
+
+          ErrorLog \${APACHE_LOG_DIR}/app02_error.log
+          CustomLog \${APACHE_LOG_DIR}/app02_access.log combined
+
+          # Пробрасываем Authorization для некоторых middleware
+          SetEnvIf Authorization .+ HTTP_AUTHORIZATION=\$0
+      </VirtualHost>
+      EOF
+
+    # 3) Отключаем дефолтный сайт и включаем наш
+    - sudo -n a2dissite 000-default.conf || true
+    - sudo -n a2ensite app02.conf
+
+    # 4) Права на storage и cache
+    - cd "$DEPLOY_DIR"
+    - sudo -n install -d -m 2775 -o www-data -g www-data storage bootstrap/cache
+    - sudo -n chown -R www-data:www-data storage bootstrap/cache
+    - sudo -n find storage bootstrap/cache -type d -exec chmod 2775 {} \;
+    - sudo -n find storage bootstrap/cache -type f -exec chmod 0664 {} \;
+
+    # 5) Проверка конфига и перезапуск
+    - sudo -n apache2ctl configtest
+    - sudo -n systemctl reload apache2
+
+before-start:
+  stage: finalize
+  tags: ["n1-laravel"]           # ← твой тег раннера
+  variables:
+    DEPLOY_DIR: /var/www/app02
+    MIGRATE_FRESH: "false"           # можно переключить на "true" при необходимости
+  before_script:
+    - set -euxo pipefail
+  script:
+    - cd "$DEPLOY_DIR"
+     
+    - sudo -u www-data bash -lc 'cd "$DEPLOY_DIR"; php artisan cache:table || true'
+    - sudo -u www-data bash -lc 'cd "$DEPLOY_DIR"; php artisan migrate:fresh --seed --force'
