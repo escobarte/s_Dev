@@ -202,7 +202,6 @@ curl -sI http://127.0.0.1:8080/index.php | head -n1    # Ждём HTTP/1.1 200 O
 docker compose exec web sh -c "wget -qO- http://api:5678"
 ```
 
-
 > Nginx не исполняет PHP сам — он передаёт .php в php-fpm (сервис php) по внутренней сети.
 > Обеим службам монтируем один и тот же код (./php), чтобы Nginx мог читать файлы, а php-fpm — исполнять.
 

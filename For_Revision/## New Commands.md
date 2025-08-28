@@ -8,6 +8,5 @@ nc -vz git-dev.itsec.md 443 - ** read and write network connection**
 
 curl -vk --header "Authorization: Bearer glrt-ygxsHQZf8JZRZCtQ21CV"   https://git-dev.itsec.md/api/v4/runners/verify
 
-
 sudo netstat -tulpn | grep ":80"
 sudo netstat -tulpn | grep ":443"
