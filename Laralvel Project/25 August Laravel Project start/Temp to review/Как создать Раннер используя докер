@@ -1,0 +1,48 @@
+Как создать Раннер используя докер
+Давай по-простому: **поднимем свой GitLab Runner** на 10.100.93.7 и направим на него job сборки ассетов. Маленькими шагами.
+
+## RUN-1. Поднять runner в Docker на 10.100.93.7
+
+Выполни:
+
+```bash
+sudo mkdir -p /srv/gitlab-runner/config
+sudo docker run -d --name gitlab-runner --restart always \
+  -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  gitlab/gitlab-runner:alpine
+
+# проверка
+docker ps --filter name=gitlab-runner
+```
+
+**Чек-вопрос (один):** контейнер `gitlab-runner` в статусе `Up`?
+
+Похоже, ты случайно отправил «Lf» 🙂 Продолжаем по одному шагу.
+
+## RUN-2 — регистрируем наш runner в GitLab (чтобы собирать фронт без SIGKILL)
+
+1. В GitLab зайди в свой проект → **Settings → CI/CD → Runners** → **New project runner** → скопируй **Registration token**.
+2. На 10.100.93.7 выполни (подставь свой токен):
+
+```bash
+docker exec -it gitlab-runner gitlab-runner register \
+  --non-interactive \
+  --url "http://git-dev.itsec.md/" \
+  --registration-token "PASTE_TOKEN_HERE" \
+  --executor "docker" \
+  --docker-image "node:20" \
+  --description "runner-10.100.93.7" \
+  --tag-list "node,build" \
+  --run-untagged="true" \
+  --locked="false"
+```
+
+3. Быстрая проверка:
+
+```bash
+docker exec -it gitlab-runner gitlab-runner list
+```
+
+**Чек-вопрос (один):** в выводе была строка `Runner registered successfully` и в списке виден `runner-10.100.93.7`? (да/нет)
+

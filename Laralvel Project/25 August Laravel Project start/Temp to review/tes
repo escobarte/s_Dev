@@ -1,0 +1,38 @@
+Starting here. it is 11:48 AM 8/21/2025
+Server 10.100.93.7 looks like cleared form old laravel.
+Next, to register Runner based on Docker and add to server.
+git add . && git commit -m"Re-Bracnh+workflow-Rrules [skip ci]$(date +%m-%d_%H-%M-%S)" && git push
+git add . && git commit -m"Re-Bracnh+workflow:Rrules [skip ci]" && git push
+git commit -m"Re-Bracnh+workflow:Rrules [skip ci] = ignore to run Pipeline
+
+
+docker-laraver
+
+Getting started
+
+
+ Starting Here Clean version
+
+ Will do a lot of things
+
+
+git add . && git commit -m "Initial Commit [skip ci] $(date +%m-%d_%H-%M)" && git push
+
+
+
+Some text
+
+[ ]
+
+
+
+Starting Here Clean version _ 8/28/2025 :: 11:03 AM
+ Will do a lot of things
+----
+[ ] git add . && git commit -m "Initial Commit [skip ci] $(date +%m-%d_%H-%M)" && git push
+---
+[skip ci] = ignore to run Pipeline
+
+wtf
+
+added some text here  

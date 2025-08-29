@@ -13,6 +13,7 @@ cp src/.env.example src/.env
 ls -1 src | egrep 'artisa|public|routes' || true
 
 nano nginx/defaul.conf
+
 ```
 server {
   listen 80;
@@ -37,7 +38,9 @@ server {
   }
 }
 ```
+
 nano docker/php/Dockerfile
+
 ```
 # image php+fpm
 FROM php:8.3-fpm-alpine
@@ -62,7 +65,9 @@ RUN curl -sS https://getcomposer.org/installer | php \
 
 WORKDIR /var/www/html
 ```
+
 nano compose.yaml
+
 ```
 services:
   web:
@@ -115,7 +120,9 @@ services:
 volumes:
   db_data:
 ```
+
 nano src/.env
+
 ```
 DB_HOST=db
 DB_PORT=3306
@@ -126,6 +133,7 @@ DB_CONNECTION=mysql
 CACHE_STORE=file
 QUEUE_CONNECTION=sync
 ```
+
 grep -E '^(DB_CONNECTION|DB_HOST|DB_PORT|DB_DATABASE|DB_USERNAME|DB_PASSWORD|CACHE_STORE|QUEUE_CONNECTION)=' src/.env
 
 docker compose up -d --build
@@ -135,6 +143,7 @@ docker compose exec php sh -lc 'cd /var/www/html && COMPOSER_ALLOW_SUPERUSER=1 c
 docker compose exec php sh -lc 'cd /var/www/html && ls -ld vendor && php artisan --version'
 
 docker compose exec php sh -lc 'cd /var/www/html && php artisan key:generate'
+
 ```
 docker compose exec php sh -lc '
   cd /var/www/html &&
