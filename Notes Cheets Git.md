@@ -9,4 +9,3 @@ git commit -m"Re-Bracnh+workflow:Rrules [skip ci] = ignore to run Pipeline
 Добавил код, и когда запушил вставил [skip ci] чтобы не перезпускать *pipeline*. 
 И потом просто в ручную перезапустил последний Job.
 ```
-
