@@ -1,0 +1,111 @@
+# Определяем стадии выполнения pipeline'а в строгом порядке
+stages:
+  - build      # Стадия сборки Docker образа
+  - deploy     # Стадия деплоя на тестовый сервер
+  - prod       # Стадия деплоя на продакшн сервер
+
+# Глобальные переменные, доступные во всех job'ах
+variables:
+  # Создаем имя Docker образа с тегом равным SHA коммита для уникальности
+  DOCKER_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  # Создаем тег "latest" для последней версии образа
+  DOCKER_LATEST: $CI_REGISTRY_IMAGE:latest
+
+# ========== building ... ==========
+build:
+  stage: build                    # Указываем, что этот job относится к стадии build
+  tags:
+    - ci                         # Указываем, что job должен выполняться на runner'е с тегом "ci"
+  image: docker:20.10.16         # Используем Docker образ для выполнения команд
+  services:
+    - docker:20.10.16-dind       # Подключаем Docker-in-Docker сервис для возможности сборки образов
+  before_script:                 # Команды, выполняемые перед основным скриптом
+    - echo "Registry URL:" $CI_REGISTRY          # Выводим URL registry
+    - echo "Project:" $CI_REGISTRY_IMAGE         # Выводим путь к проекту в registry
+    - echo "Commit:" $CI_COMMIT_SHA              # Выводим SHA коммита
+    # Авторизуемся в GitLab Container Registry для push'а образов
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:                        # Основные команды выполнения job'а
+    - echo " ..... Building the Image .... $CI_COMMIT_REF_NAME ...."
+    # Собираем Docker образ используя Dockerfile.prod с тегом равным SHA коммита
+    - docker build -f Dockerfile.prod -t $DOCKER_IMAGE .
+    # Создаем дополнительный тег "latest" для того же образа
+    - docker tag $DOCKER_IMAGE $DOCKER_LATEST
+    - echo "Sending to registry..."
+    # Отправляем образ с SHA тегом в registry
+    - docker push $DOCKER_IMAGE
+    # Отправляем образ с тегом "latest" в registry
+    - docker push $DOCKER_LATEST
+    - echo "............. Building Complete! ....................."
+  except:
+    - tags                       # Исключаем выполнение этого job'а при создании тегов
+
+# ========== deploy on test (10.100.93.7) ==========
+deploy:
+  stage: deploy                  # Job относится к стадии deploy
+  tags:
+    - deploy2                    # Выполняется на runner'е с тегом "deploy2" (тестовый сервер)
+  script:
+    - echo "Deploy on TEST server ..."
+    - echo "Server:" $(hostname)               # Выводим имя сервера для подтверждения
+    - echo "Branch:" $CI_COMMIT_REF_NAME       # Выводим название ветки
+    - echo "Downloading the image:" $DOCKER_IMAGE
+    # Авторизуемся в registry для скачивания образа
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    # Скачиваем собранный на предыдущей стадии образ
+    - docker pull $DOCKER_IMAGE
+    # Останавливаем существующий контейнер (|| true означает "не падать если контейнер не существует")
+    - docker stop laravel-blog-test || true
+    # Удаляем существующий контейнер
+    - docker rm laravel-blog-test || true
+    # Создаем Docker volume для базы данных (если не существует)
+    - docker volume create laravel-test-db || true
+    # Запускаем новый контейнер:
+    # -d: в фоновом режиме
+    # --name: имя контейнера
+    # --restart unless-stopped: автоперезапуск при падении
+    # -p 8080:80: проброс порта 80 контейнера на порт 8080 хоста
+    # -v: монтируем volume для persistent storage БД
+    - docker run -d --name laravel-blog-test --restart unless-stopped -p 8080:80 -v laravel-test-db:/var/www/html/database $DOCKER_IMAGE
+    # Ждем 10 секунд чтобы контейнер успел запуститься
+    - sleep 10
+    # Проверяем что контейнер запущен
+    - docker ps | grep laravel-blog-test
+    - echo "Deploy on Test Env Done ! http://10.100.93.7:8080"
+  needs:
+    - build                      # Указываем зависимость - deploy может выполняться только после успешного build
+  only:
+    variables:
+      # Выполняется только для веток начинающихся с "develop" (develop, develop-feature и т.д.)
+      - $CI_COMMIT_REF_NAME =~ /^develop.*/
+
+# ========== PRODUCTION (10.100.93.6) ==========
+prod:
+  stage: prod                    # Job относится к стадии prod
+  tags:
+    - deploy                     # Выполняется на runner'е с тегом "deploy" (продакшн сервер)
+  script:
+    - echo "PRODUCTION DEPLOYMENT"
+    - echo "Only from master branch"
+    - echo "Server:" $(hostname)               # Подтверждение что мы на правильном сервере
+    # Авторизация в registry
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    # Скачиваем образ
+    - docker pull $DOCKER_IMAGE
+    # Останавливаем существующий продакшн контейнер
+    - docker stop laravel-blog-prod || true
+    # Удаляем существующий продакшн контейнер
+    - docker rm laravel-blog-prod || true
+    # Создаем volume для продакшн БД
+    - docker volume create laravel-prod-db || true
+    # Запускаем продакшн контейнер с теми же параметрами что и тестовый
+    - docker run -d --name laravel-blog-prod --restart unless-stopped -p 8080:80 -v laravel-prod-db:/var/www/html/database $DOCKER_IMAGE
+    - sleep 10
+    # Проверяем что продакшн контейнер запущен
+    - docker ps | grep laravel-blog-prod
+    - echo "PRODUCTION finished"
+    - echo "http://10.100.93.6:8080"
+  needs:
+    - build                      # Зависимость от успешной сборки
+  only:
+    - master                     # Выполняется ТОЛЬКО для ветки master

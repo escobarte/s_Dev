@@ -1,0 +1,60 @@
+# Основные настройки демона supervisord
+[supervisord]
+# nodaemon=true означает что supervisord НЕ будет работать в фоновом режиме
+# Это критично для Docker контейнеров - главный процесс должен оставаться активным
+# Если supervisord уйдет в фон, Docker контейнер завершится
+nodaemon=true
+
+# Путь к файлу логов supervisord (собственные логи менеджера процессов)
+# Сюда записываются события запуска/остановки управляемых программ
+logfile=/var/log/supervisord.log
+
+# Путь к PID файлу supervisord (Process ID)
+# Используется для управления процессом supervisord (остановка, перезагрузка)
+pidfile=/var/run/supervisord.pid
+
+# Конфигурация программы php-fpm (FastCGI Process Manager для PHP)
+[program:php-fpm]
+# Команда для запуска php-fpm
+# --nodaemonize: запускаем php-fpm в foreground режиме (не в фоне)
+# Это нужно чтобы supervisord мог контролировать процесс
+command=php-fpm --nodaemonize
+
+# autostart=true: автоматически запускать php-fpm при старте supervisord
+# Означает что php-fpm запустится сразу при запуске контейнера
+autostart=true
+
+# autorestart=true: автоматически перезапускать php-fpm если он упал
+# Обеспечивает высокую доступность - если php-fpm крашится, он перезапустится
+autorestart=true
+
+# Путь к файлу для логов стандартного вывода php-fpm
+# Все сообщения php-fpm (включая успешные операции) пишутся сюда
+stdout_logfile=/var/log/php-fpm.log
+
+# Путь к файлу для логов ошибок php-fpm  
+# Все ошибки php-fpm пишутся сюда (но в данном случае тот же файл что и stdout)
+stderr_logfile=/var/log/php-fpm.log
+
+# Конфигурация программы nginx (веб-сервер)
+[program:nginx]
+# Команда для запуска nginx
+# -g "daemon off;" - запускаем nginx в foreground режиме (не демонизируем)
+# По умолчанию nginx работает в фоне, но supervisord требует foreground
+command=nginx -g "daemon off;"
+
+# autostart=true: автоматически запускать nginx при старте supervisord
+# nginx будет готов принимать HTTP запросы сразу после запуска контейнера
+autostart=true
+
+# autorestart=true: автоматически перезапускать nginx если он упал
+# Критично для веб-сервера - если nginx падает, сайт перестает работать
+autorestart=true
+
+# Путь к файлу для логов стандартного вывода nginx
+# Информационные сообщения nginx записываются сюда
+stdout_logfile=/var/log/nginx.log
+
+# Путь к файлу для логов ошибок nginx
+# Ошибки nginx записываются сюда (тот же файл что и stdout в данной конфигурации)
+stderr_logfile=/var/log/nginx.log

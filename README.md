@@ -1,1 +1,3 @@
-This branch will be used for addns and updates for period 7-8 august
+# 2nd September 2025
+
+## I did my first CI CD for a Laravel Project

@@ -1,0 +1,102 @@
+# ==================== ЭТАП 1: СБОРКА ФРОНТЕНДА ====================
+# Создаем временный контейнер для сборки JavaScript/CSS файлов
+# node:20-alpine - образ с Node.js версии 20 на базе Alpine Linux
+# AS node-builder - даем имя этому этапу для дальнейшего использования
+FROM node:20-alpine AS node-builder
+
+# Устанавливаем рабочую директорию для фронтенд сборки
+WORKDIR /app
+
+# Копируем файлы зависимостей Node.js (package.json и package-lock.json)
+# Копируем отдельно для эффективного кеширования Docker слоев
+COPY src/package*.json ./
+
+# Устанавливаем ТОЛЬКО production зависимости Node.js
+# npm ci - чистая установка (быстрее и надежнее чем npm install)
+# --only=production - исключаем dev-зависимости (webpack-dev-server и т.д.)
+RUN npm ci --only=production
+
+# Копируем весь исходный код приложения
+COPY src/ ./
+
+# Собираем фронтенд (компилируем SCSS в CSS, минифицируем JS, etc.)
+# npm run build обычно запускает Vite/Laravel Mix для сборки assets
+RUN npm run build
+
+# ==================== ЭТАП 2: БАЗОВЫЙ PHP ОБРАЗ ====================
+# Создаем базовый образ с PHP и всеми необходимыми расширениями
+# Выносим в отдельный этап для переиспользования и оптимизации
+FROM php:8.3-fpm-alpine AS php-base
+
+# Устанавливаем системные пакеты
+RUN apk add --no-cache \
+    # Основные утилиты (как в предыдущем Dockerfile)
+    bash git curl unzip icu-libs oniguruma libxml2 libzip \
+    libpng libjpeg-turbo libwebp freetype \
+    # НОВОЕ: добавляем nginx и supervisor прямо в образ
+    nginx supervisor \
+    # Временные пакеты для компиляции PHP расширений
+    && apk add --no-cache --virtual .build-deps \
+    build-base icu-dev oniguruma-dev libxml2-dev libzip-dev zlib-dev \
+    libpng-dev libjpeg-turbo-dev libwebp-dev freetype-dev
+
+# Конфигурируем и устанавливаем PHP расширения (как в предыдущем Dockerfile)
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+ && docker-php-ext-install -j"$(nproc)" \
+    pdo_mysql mbstring exif pcntl bcmath gd intl zip \
+ && apk del --no-network .build-deps
+
+# Устанавливаем Composer (менеджер зависимостей PHP)
+RUN curl -sS https://getcomposer.org/installer | php \
+ && mv composer.phar /usr/local/bin/composer
+
+# ==================== ЭТАП 3: ФИНАЛЬНЫЙ ОБРАЗ ПРИЛОЖЕНИЯ ====================
+# Создаем финальный образ на основе базового PHP образа
+FROM php-base AS app
+
+# Устанавливаем рабочую директорию для Laravel приложения
+WORKDIR /var/www/html
+
+# Копируем исходный код Laravel из контекста сборки
+COPY src/ ./
+
+# Устанавливаем PHP зависимости через Composer
+# COMPOSER_ALLOW_SUPERUSER=1 - разрешаем запуск от root (нужно в Docker)
+# --no-dev - исключаем development зависимости (PHPUnit, отладчики и т.д.)
+# --optimize-autoloader - оптимизируем автозагрузчик классов для production
+# --no-interaction - не запрашиваем подтверждений пользователя
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
+
+# КЛЮЧЕВАЯ СТРОКА: Копируем собранные фронтенд файлы из первого этапа
+# --from=node-builder - берем файлы из этапа node-builder
+# /app/public/build - путь в контейнере node-builder
+# ./public/build - путь в текущем контейнере
+COPY --from=node-builder /app/public/build ./public/build
+
+# Создаём необходимые директории Laravel и настраиваем права доступа
+RUN mkdir -p storage/framework/{cache,sessions,testing,views} bootstrap/cache \
+    # Назначаем владельцем папок пользователя веб-сервера
+    && chown -R www-data:www-data storage bootstrap/cache \
+    # Устанавливаем права: владелец и группа могут читать/писать/выполнять
+    && chmod -R 775 storage bootstrap/cache
+
+# Копируем конфигурацию nginx из папки docker в образ
+# Заменяем стандартную конфигурацию nginx на нашу оптимизированную
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+
+# Копируем конфигурацию supervisor для управления процессами
+# supervisor будет следить за nginx и php-fpm
+COPY docker/supervisord.conf /etc/supervisord.conf
+
+# Копируем стартовый скрипт (тот bash скрипт что мы разбирали)
+COPY docker/start.sh /start.sh
+# Делаем скрипт исполняемым
+RUN chmod +x /start.sh
+
+# Открываем порт 80 для HTTP трафика
+# Nginx внутри контейнера будет слушать этот порт
+EXPOSE 80
+
+# Команда по умолчанию: запускаем наш стартовый скрипт
+# Скрипт настроит Laravel и запустит supervisord для управления процессами
+CMD ["/start.sh"]

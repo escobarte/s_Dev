@@ -1,0 +1,57 @@
+# Указываем базовый образ - PHP версии 8.3 с FPM (FastCGI Process Manager) 
+# на основе Alpine Linux (легковесный дистрибутив Linux)
+FROM php:8.3-fpm-alpine
+
+# Устанавливаем утилиты и пакеты разработки
+RUN apk add --no-cache \
+    # Основные утилиты и runtime библиотеки (нужны для работы приложения):
+    bash \                    # Командная оболочка bash
+    git \                     # Система контроля версий
+    curl \                    # Утилита для HTTP запросов
+    unzip \                   # Для распаковки архивов
+    icu-libs \               # Библиотеки для интернационализации
+    oniguruma \              # Библиотека регулярных выражений
+    libxml2 \                # Библиотека для работы с XML
+    libzip \                 # Библиотека для работы с ZIP архивами
+    libpng \                 # Библиотека для работы с PNG изображениями
+    libjpeg-turbo \          # Оптимизированная библиотека для JPEG
+    libwebp \                # Библиотека для работы с WebP изображениями
+    freetype \               # Библиотека для работы со шрифтами
+    # Добавляем временные пакеты для компиляции (будут удалены позже):
+    && apk add --no-cache --virtual .build-deps \
+    build-base \             # Основные инструменты для компиляции (gcc, make и др.)
+    icu-dev \               # Заголовочные файлы для icu
+    oniguruma-dev \         # Заголовочные файлы для oniguruma
+    libxml2-dev \           # Заголовочные файлы для libxml2
+    libzip-dev \            # Заголовочные файлы для libzip
+    zlib-dev \              # Заголовочные файлы для zlib (сжатие)
+    libpng-dev \            # Заголовочные файлы для libpng
+    libjpeg-turbo-dev \     # Заголовочные файлы для libjpeg-turbo
+    libwebp-dev \           # Заголовочные файлы для libwebp
+    freetype-dev            # Заголовочные файлы для freetype
+
+# Собираем и включаем PHP расширения:
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    # Настраиваем расширение GD с поддержкой FreeType, JPEG и WebP
+ && docker-php-ext-install -j"$(nproc)" \
+    # Устанавливаем расширения параллельно (используя все доступные CPU ядра):
+    pdo_mysql \              # PDO драйвер для MySQL/MariaDB
+    mbstring \               # Поддержка многобайтовых строк (UTF-8)
+    exif \                   # Чтение EXIF данных из изображений
+    pcntl \                  # Контроль процессов (Process Control)
+    bcmath \                 # Математические функции произвольной точности
+    gd \                     # Библиотека для создания и обработки изображений
+    intl \                   # Расширение для интернационализации
+    zip \                    # Работа с ZIP архивами
+    # Удаляем временные пакеты разработки для уменьшения размера образа
+ && apk del --no-network .build-deps
+
+# Устанавливаем Composer (менеджер зависимостей PHP):
+RUN curl -sS https://getcomposer.org/installer | php \
+    # Скачиваем и запускаем установщик Composer
+ && mv composer.phar /usr/local/bin/composer
+    # Перемещаем исполняемый файл Composer в глобальную директорию
+
+# Устанавливаем рабочую директорию внутри контейнера
+# Все последующие команды будут выполняться из этой директории
+WORKDIR /var/www/html
