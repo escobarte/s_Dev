@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Полная схема проекта</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .phase {
+            margin-bottom: 50px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .phase-header {
+            padding: 25px;
+            color: white;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-align: center;
+            position: relative;
+        }
+
+        .phase-1 .phase-header { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .phase-2 .phase-header { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .phase-3 .phase-header { background: linear-gradient(135deg, #f39c12, #e67e22); }
+        .phase-4 .phase-header { background: linear-gradient(135deg, #27ae60, #229954); }
+
+        .phase-content {
+            background: #f8f9fa;
+            padding: 30px;
+        }
+
+        .step-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border-left: 5px solid;
+        }
+
+        .phase-1 .step { border-left-color: #e74c3c; }
+        .phase-2 .step { border-left-color: #3498db; }
+        .phase-3 .step { border-left-color: #f39c12; }
+        .phase-4 .step { border-left-color: #27ae60; }
+
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .step-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-icon {
+            font-size: 1.5em;
+        }
+
+        .step-description {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .code-snippet {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .file-structure {
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 15px 0;
+        }
+
+        .file-tree {
+            margin-left: 0;
+        }
+
+        .file-tree li {
+            list-style: none;
+            margin: 5px 0;
+            position: relative;
+        }
+
+        .file-tree li:before {
+            content: "├── ";
+            color: #95a5a6;
+        }
+
+        .file-tree li:last-child:before {
+            content: "└── ";
+        }
+
+        .file-tree ul {
+            margin-left: 20px;
+            padding: 0;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 3em;
+            color: #bdc3c7;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .tech-item {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .network-diagram {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .server-box {
+            display: inline-block;
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            min-width: 150px;
+        }
+
+        .connection-line {
+            color: #3498db;
+            font-size: 2em;
+            margin: 0 10px;
+        }
+
+        @media (max-width: 768px) {
+            .step-container {
+                grid-template-columns: 1fr;
+            }
+            .title {
+                font-size: 2em;
+            }
+            .server-box {
+                display: block;
+                margin: 10px auto;
+            }
+            .connection-line {
+                display: block;
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🏗️ Полная схема проекта: от идеи до продакшн</h1>
+
+        <!-- ФАЗА 1: СОЗДАНИЕ СТРУКТУРЫ -->
+        <div class="phase phase-1">
+            <div class="phase-header">
+                🎯 ФАЗА 1: СОЗДАНИЕ СТРУКТУРЫ ПРОЕКТА
+            </div>
+            <div class="phase-content">
+                <div class="step-container">
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">📁</span>
+                            Структура проекта
+                        </div>
+                        <div class="step-description">
+                            Создаём организованную файловую структуру для Laravel приложения
+                        </div>
+                        <div class="file-structure">
+project/
+<ul class="file-tree">
+    <li>src/ (Laravel приложение)
+        <ul>
+            <li>app/ (логика приложения)</li>
+            <li>public/ (статические файлы)</li>
+            <li>database/ (миграции, сиды)</li>
+            <li>package.json (фронтенд зависимости)</li>
+            <li>composer.json (PHP зависимости)</li>
+        </ul>
+    </li>
+    <li>docker/ (конфигурации)
+        <ul>
+            <li>nginx.conf</li>
+            <li>supervisord.conf</li>
+            <li>start.sh</li>
+        </ul>
+    </li>
+    <li>Dockerfile.prod</li>
+    <li>.gitlab-ci.yml</li>
+</ul>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">⚙️</span>
+                            Выбор технологий
+                        </div>
+                        <div class="step-description">
+                            Определяем стек технологий для разработки
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">PHP 8.3</span>
+                            <span class="tech-item">Laravel</span>
+                            <span class="tech-item">Node.js 20</span>
+                            <span class="tech-item">Nginx</span>
+                            <span class="tech-item">SQLite</span>
+                            <span class="tech-item">Docker</span>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">🔧</span>
+                            Конфигурационные файлы
+                        </div>
+                        <div class="step-description">
+                            Создаём файлы конфигурации для сервисов
+                        </div>
+                        <div class="code-snippet">
+# nginx.conf - веб-сервер
+# supervisord.conf - менеджер процессов  
+# start.sh - скрипт запуска
+# .gitlab-ci.yml - CI/CD пайплайн
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-arrow">⬇️</div>
+
+        <!-- ФАЗА 2: СОЗДАНИЕ DOCKERFILE -->
+        <div class="phase phase-2">
+            <div class="phase-header">
+                🐳 ФАЗА 2: СОЗДАНИЕ DOCKERFILE
+            </div>
+            <div class="phase-content">
+                <div class="step-container">
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">🏗️</span>
+                            Этап 1: Сборка фронтенда
+                        </div>
+                        <div class="step-description">
+                            Используем Node.js для компиляции CSS, JS файлов
+                        </div>
+                        <div class="code-snippet">
+FROM node:20-alpine AS node-builder
+WORKDIR /app
+COPY src/package*.json ./
+RUN npm ci --only=production
+COPY src/ ./
+RUN npm run build
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">🔧</span>
+                            Этап 2: Базовый PHP образ
+                        </div>
+                        <div class="step-description">
+                            Устанавливаем PHP с необходимыми расширениями и Nginx
+                        </div>
+                        <div class="code-snippet">
+FROM php:8.3-fpm-alpine AS php-base
+RUN apk add nginx supervisor
+RUN docker-php-ext-install \
+    pdo_mysql gd intl zip
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">📦</span>
+                            Этап 3: Финальный образ
+                        </div>
+                        <div class="step-description">
+                            Объединяем всё: PHP код + собранный фронтенд + конфигурации
+                        </div>
+                        <div class="code-snippet">
+FROM php-base AS app
+COPY src/ ./
+RUN composer install --no-dev
+COPY --from=node-builder /app/public/build ./public/build
+COPY docker/ /
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Результат: Готовый Docker образ</h3>
+                    <p>Образ содержит всё необходимое для работы Laravel приложения:<br>
+                    PHP + Nginx + скомпилированный фронтенд + все зависимости</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-arrow">⬇️</div>
+
+        <!-- ФАЗА 3: CI/CD ПАЙПЛАЙН -->
+        <div class="phase phase-3">
+            <div class="phase-header">
+                🔄 ФАЗА 3: АВТОМАТИЗАЦИЯ CI/CD
+            </div>
+            <div class="phase-content">
+                <div class="step-container">
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">🏭</span>
+                            Build: Сборка образа
+                        </div>
+                        <div class="step-description">
+                            GitLab Runner собирает Docker образ и отправляет в Registry
+                        </div>
+                        <div class="code-snippet">
+# Docker-in-Docker сборка
+docker build -f Dockerfile.prod -t $IMAGE .
+docker push $IMAGE
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">🧪</span>
+                            Deploy: Тестовый сервер
+                        </div>
+                        <div class="step-description">
+                            Автоматический деплой на тест для веток develop*
+                        </div>
+                        <div class="code-snippet">
+# Скачиваем и запускаем
+docker pull $IMAGE
+docker run -d --name laravel-blog-test \
+  -p 8080:80 $IMAGE
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">🚀</span>
+                            Prod: Продакшн сервер
+                        </div>
+                        <div class="step-description">
+                            Деплой в продакшн только с ветки master
+                        </div>
+                        <div class="code-snippet">
+# Только для master ветки
+docker run -d --name laravel-blog-prod \
+  --restart unless-stopped \
+  -p 8080:80 $IMAGE
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-arrow">⬇️</div>
+
+        <!-- ФАЗА 4: RUNTIME ВЫПОЛНЕНИЕ -->
+        <div class="phase phase-4">
+            <div class="phase-header">
+                ⚡ ФАЗА 4: RUNTIME - КАК РАБОТАЕТ В ПРОДАКШН
+            </div>
+            <div class="phase-content">
+                <div class="step-container">
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">🚀</span>
+                            Запуск контейнера
+                        </div>
+                        <div class="step-description">
+                            Docker запускает контейнер и выполняет start.sh скрипт
+                        </div>
+                        <div class="code-snippet">
+#!/bin/bash
+# Создаём .env файл
+# Настраиваем права доступа
+# Создаём SQLite базу
+# Запускаем миграции
+# Кэшируем конфигурации
+exec supervisord -c /etc/supervisord.conf
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">👥</span>
+                            Supervisor управляет процессами
+                        </div>
+                        <div class="step-description">
+                            Supervisor запускает и контролирует Nginx + PHP-FPM
+                        </div>
+                        <div class="code-snippet">
+[program:nginx]
+command=nginx -g "daemon off;"
+autorestart=true
+
+[program:php-fpm]  
+command=php-fpm --nodaemonize
+autorestart=true
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">
+                            <span class="step-icon">🌐</span>
+                            Nginx обслуживает запросы
+                        </div>
+                        <div class="step-description">
+                            Nginx принимает HTTP запросы и передаёт их PHP-FPM
+                        </div>
+                        <div class="code-snippet">
+# Статические файлы → отдаёт сразу
+# PHP файлы → передаёт в PHP-FPM
+# Laravel роуты → всё через index.php
+                        </div>
+                    </div>
+                </div>
+
+                <div class="network-diagram">
+                    <h3>🌐 Схема работы в runtime:</h3>
+                    
+                    <div class="server-box">
+                        <strong>👤 Пользователь</strong><br>
+                        Браузер
+                    </div>
+                    <span class="connection-line">→</span>
+                    
+                    <div class="server-box">
+                        <strong>🌐 Nginx</strong><br>
+                        Порт 80
+                    </div>
+                    <span class="connection-line">→</span>
+                    
+                    <div class="server-box">
+                        <strong>🐘 PHP-FPM</strong><br>
+                        Порт 9000
+                    </div>
+                    <span class="connection-line">→</span>
+                    
+                    <div class="server-box">
+                        <strong>🗄️ SQLite</strong><br>
+                        database.sqlite
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>✅ Итоговый результат</h3>
+                    <p><strong>Пользователь заходит на сайт:</strong></p>
+                    <p>🌐 http://10.100.93.6:8080 → Nginx → PHP-FPM → Laravel → База данных → Ответ</p>
+                    <p><strong>Всё работает автоматически!</strong> 🎉</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="margin-top: 40px;">
+            <h2>🎯 ВЕСЬ ПРОЦЕСС В ДВУХ СЛОВАХ:</h2>
+            <p><strong>Создание:</strong> Файлы → Dockerfile → CI/CD настройка</p>
+            <p><strong>Выполнение:</strong> Git push → Автосборка → Автодеплой → Работающий сайт</p>
+            <p><em>От идеи до продакшн за 10 минут! 🚀</em></p>
+        </div>
+    </div>
+
+    <script>
+        // Интерактивность при наведении на шаги
+        document.querySelectorAll('.step').forEach(step => {
+            step.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+                this.style.transition = 'all 0.3s ease';
+            });
+            
+            step.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Анимация стрелок с задержкой
+        document.querySelectorAll('.flow-arrow').forEach((arrow, index) => {
+            setTimeout(() => {
+                arrow.style.animation = 'pulse 2s infinite';
+            }, index * 1000);
+        });
+
+        // Подсветка технологий при клике
+        document.querySelectorAll('.tech-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.transform = 'scale(1.1)';
+                this.style.backgroundColor = '#e74c3c';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                    this.style.backgroundColor = '#3498db';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>

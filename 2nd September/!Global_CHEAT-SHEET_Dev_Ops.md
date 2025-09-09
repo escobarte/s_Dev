@@ -39,7 +39,6 @@ ssh-keygen -t rsa -b 4096 -C "email@example.com"
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_rsa
 cat ~/.ssh/id_rsa.pub               # Копируешь на GitHub
-
 ```
 
 ## Network-ing
@@ -68,16 +67,16 @@ iptables -L DOCKER-USER -n -v
 iptables -t nat -L POSTROUTING -n -v
 ```
 
-
 ## Linux_Commands
+
 ```bash
 */ Processes \*
 watch -n2 docker ps
 history | tail -20 | awk '{$1=""; $2=""; $3=""; print}'
 systemctl list-units --type=service --state=running
-lsof -i: 8080 											#(list open files)
+lsof -i: 8080                                             #(list open files)
 lsof /var/log/file.log
-ps aux | grep Dockerfile								#(process status)
+ps aux | grep Dockerfile                                #(process status)
 ps -ef
 journalctl -u logstash -n20
 journalctl -xeu elastichsearch.service
@@ -108,7 +107,7 @@ ls -lhc   # новые файлы по изменению метаданных
 du -sh /var/log/* | sort -hr
 du -sh /var/lib/docker/containers
 ls -lhSr /var/log/
-df -h --total	#общее свободное место на сервере
+df -h --total    #общее свободное место на сервере
 df -h --total | grep total
 
 
@@ -116,25 +115,16 @@ df -h --total | grep total
 /etc/passwd        # Инфо о пользователях (uid, shell и тд)
 /etc/group         # Информация о группах
 id zabbix          # Инфо о пользователе zabbix
-
 ```
 
-
 ## Name_Me
+
 ```bash
 
-
-
-
-
 ```
-
 
 ## Name_Me
+
 ```
-
-
-
-
 
 ```

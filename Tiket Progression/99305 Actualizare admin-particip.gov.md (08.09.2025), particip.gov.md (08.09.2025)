@@ -1,0 +1,90 @@
+1. actualizarea admin-particip.gov.md din GIT. Suplimentar este necesar de aplicat migratiile bazei de date cu comanda php artisan migrate, recomandăm crearea unei copii de rezervă a bazei de date înainte de a rula comanda.
+
+1.1 Snapshot [+]
+1.2 actualizarea admin-particip.gov.md din GIT
+1.3 dump db
+1.4 php artisan migrate
+
+
+
+2. actualizarea la particip.gov.md din GIT.
+2.1 Snapshot [+]
+2.1 actualizarea la particip.gov.md din GIT
+
+
+
+Primul oficial SSH connect al meu
+1. Teampass -> Proxy -> 
+ssh tenantadmin@10.25.15.2
+Password: din comentariu <Temp pass>
+
+
+netstat -tlnp | grep postgres
+cat .env | grep DB_
+sudo grep -i error /var/log/postgresql/postgresql-*-main.log | tail -20
+find /DATA -name "backups" -type d 2>/dev/null
+
+
+pg_dump -U participadmin -h localhost participadmin > dump_participadmin_$(date +%Y%m%d_%H%M%S).sql
+
+
+ 1380  cd /DATA/newparticip.gov.md/
+ 1381  git status
+ 1382  cd htdocs/
+ 1383  git status
+ 1384  git pull
+ 1385  chown -R www-data:www-data .
+ 1386  df -h
+ 1387  cat > ~/tmp.txt
+ 1388  for FILE in $(cat ~/tmp.txt); do ls -l $FILE; done
+ 1389  for FILE in $(cat ~/tmp.txt); do chown www-data $FILE; done
+ 1390  for FILE in $(cat ~/tmp.txt); do ls -l $FILE; done
+ 1391  for FILE in $(cat ~/tmp.txt); do chown www-data: $FILE; done
+ 1392  for FILE in $(cat ~/tmp.txt); do ls -l $FILE; done
+ 1393  cd /DATA/newparticip.gov.md/htdocs/
+
+
+
+
+ 1. Snapshot
+
+проверка что порты базы прослушываются
+ls /DATA/
+lsof -i:5432
+ps axu| grep post
+ss -nt" grep 5432
+
+подключаемся к базе
+su - postgres # переключаемся на юзера postgres
+psql # заходим в базу
+postgres=# 
+\l  # list баз данных
+\с participadmin # You are now connected to database "participadmin" as user "postgres"
+\q
+logout
+
+
+Проверяем логи
+cat /var/log/posgresql/postresql-9-6.main.log 
+
+Делаю дамп базы 
+pg_dump -U participadmin -h localhost participadmin > dump_participadmin_$(date +%Y%m%d_%H%M%S).sql
+ls -alht
+
+делаем git
+git status ( у меня показало что apt to date)
+проверям по коммиту
+df -h /
+df -h .
+git fetch origin test
+git log --one-line
+
+
+git status
+git pull
+chown -R www-data:www:data .
+# оказалось что часть была на NFS, выделил фаилы которые были изменены, добавил в файл чтобы потом поменять им права (min 27)
+cat > ~/tpm.txt
+№Вставляешь текст
+for FILE in $(cat ~/tmp.txt); do ls -l $FILE; done
+for FILE in $(cat ~/tmp.txt); do chown www-data: $FILE; done
