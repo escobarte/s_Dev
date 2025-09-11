@@ -1,0 +1,127 @@
+# MAJOR UPDATE / Причина не в кроне оказалсь - а laravel-worker.conf
+
+## ls -la storage/logs/
+```bash
+total 7880
+drwxrwxrwx  2 www-data      www-data        4096 Sep 10 08:27 .
+drwxrwxrwx 10 www-data      www-data        4096 Jun  9 11:07 ..
+-rwxrwxrwx  1 www-data      www-data          13 Jul 29  2019 .htaccess
+-rwxrwxrwx  1 www-data      www-data      523592 Aug 27 09:00 laravel-2025-08-27.log
+-rwxrwxrwx  1 www-data      www-data      542640 Aug 28 14:37 laravel-2025-08-28.log
+-rwxrwxrwx  1 www-data      www-data      618387 Aug 29 14:47 laravel-2025-08-29.log
+-rwxrwxrwx  1 www-data      www-data      522377 Aug 30 09:00 laravel-2025-08-30.log
+-rwxrwxrwx  1 www-data      www-data      522377 Aug 31 09:00 laravel-2025-08-31.log
+-rwxrwxrwx  1 www-data      www-data      522377 Sep  1 09:00 laravel-2025-09-01.log
+-rwxrwxrwx  1 www-data      www-data      541703 Sep  2 09:00 laravel-2025-09-02.log
+-rwxrwxrwx  1 www-data      www-data      522602 Sep  3 09:00 laravel-2025-09-03.log
+-rwxrwxrwx  1 www-data      www-data      525050 Sep  4 09:00 laravel-2025-09-04.log
+-rwxrwxrwx  1 www-data      www-data      523283 Sep  5 09:00 laravel-2025-09-05.log
+-rwxrwxrwx  1 www-data      www-data      523283 Sep  6 09:00 laravel-2025-09-06.log
+-rwxrwxrwx  1 www-data      www-data      523283 Sep  7 09:00 laravel-2025-09-07.log
+-rwxrwxrwx  1 www-data      www-data      526641 Sep  8 09:00 laravel-2025-09-08.log
+-rwxrwxrwx  1 www-data      www-data      554994 Sep  9 21:56 laravel-2025-09-09.log
+-rw-r--r--  1 participadmin participadmin 537464 Sep 10 09:44 laravel-2025-09-10.log
+```
+
+# Debug -
+### Почему владелец Лога другой чем www-data. 
+#### Чекаю под каким пользователем работает:
+```bash
+ps aux | grep php
+partici+  18677  0.0  0.2 330964 40984 ?        S    Feb21 197:15 /usr/bin/php /DATA/participadmin.gov.md/htdocs/artisan
+ps aux | grep apache2
+www-data  28970  0.0  0.0 501544 15780 ?        S    06:25   0:00 /usr/sbin/apache2
+```
+#### Проверил есть ли задания в crontab
+```bash
+root@01PARTICIP02:/DATA/participadmin.gov.md/htdocs/storage/logs# crontab -l
+no crontab for root
+root@01PARTICIP02:/DATA/participadmin.gov.md/htdocs/storage/logs# crontab -l -u www-data
+no crontab for www-data
+crontab -l -u participadmin
+* * * * * php /DATA/participadmin.gov.md/htdocs/artisan schedule:run >> /dev/null 2>&1
+```
+
+## Это может быть:
+```
+Первый посетитель сайта после полуночи
+Первая выполненная команда из schedule:run
+Любая ошибка или событие
+```
+
+```
+Если файл создан от participadmin - PHP/веб-сервер не сможет в него писать
+Если файл создан от www-data - все процессы смогут нормально логировать
+```
+
+# ---- 11 Septembrie
+```
+-rwxrwxrwx  1 www-data      www-data      537464 Sep 10 09:44 laravel-2025-09-10.log
+-rw-r--r--  1 participadmin participadmin     61 Sep 11 05:00 laravel-2025-09-11.log
+```
+
+## Troubleshooting
+``` bash
+stat /DATA/participadmin.gov.md/htdocs/storage/logs/laravel-2025-09-11.log
+sudo crontab -u www-data -l | grep schedule
+sudo crontab -u participadmin -l | grep schedule
+
+
+root@01PARTICIP02:/home/tenantadmin# sudo crontab -u participadmin -l | grep schedule
+#* *  *php /DATA/participadmin.gov.md/htdocs/artisan schedule:run >> /dev/null 2>&1
+root@01PARTICIP02:/home/tenantadmin# sudo crontab -u www-data -l | grep schedule
+* * * ** php /DATA/participadmin.gov.md/htdocs/artisan schedule:run >> /dev/null 2>&1
+root@01PARTICIP02:/home/tenantadmin# stat /DATA/participadmin.gov.md/htdocs/storage/logs/laravel-2025-09-11.log
+Cron для participadmin закоментирован вроде, нет? Там спереди #. А для www-data наоборот.
+------------------
+root@01PARTICIP02:/home/tenantadmin# cat /DATA/participadmin.gov.md/htdocs/storage/logs/laravel-2025-09-11.log
+[2025-09-11 05:00:03] staging.DEBUG: SUPERVISOR RUNNING OK
+
+---- Проверим Supervisor -----
+```
+
+### Проверяем статус supervisor
+sudo supervisorctl status
+### Смотрим конфигурации supervisor
+```bash
+ls -la /etc/supervisor/conf.d/
+ps aux | grep supervisor
+ps aux | grep "artisan queue"
+```
+
+`partici+  18677  0.0  0.2 330964 40984 ?        S    Feb21 197:52 /usr/bin/php /DATA/participadmin.gov.md/htdocs/artisan queue:work --queue=high,normal,low --timeout=600 --sleep=3 --tries=1`
+
+### Этот файл конфигурации говорит Supervisor как запускать и контролировать один или несколько воркеров Laravel, которые обрабатывают задачи из очереди
+Ведение логов: Он определяет, куда сохранять логи (stdout_logfile, stderr_logfile), чтобы вы могли отслеживать работу воркеров и ошибки.
+Управление пользователем: Позволяет запускать воркеры от имени определенного пользователя (user), что важно для безопасности.
+
+-- Лучшее решение для поиска проблемы было:
+```
+1. ls -la ../logs/
+-rw-r--r--  1 participadmin participadmin   1744 Sep 11 08:11 laravel-2025-09-11.log # что говорит что файл создан от имени participadmin
+2. cat /DATA/participadmin.gov.md/htdocs/storage/logs/laravel-2025-09-11.log
+-- [2025-09-11 05:00:03] staging.DEBUG: SUPERVISOR RUNNING OK
+# Supervisor
+ls -la /etc/supervisor/conf.d
+= laravel-worker.conf
+# Прочёл файл, и нашёл что:
+(command=/usr/bin/php /DATA/participadmin.gov.md/htdocs/artisan queue:work --queue=high,normal,low --timeout=600 --sleep=3 --tries=1)
+(user=participadmin)
+
+
+root@01PARTICIP02:/etc/supervisor/conf.d# vi laravel-worker.conf
+root@01PARTICIP02:/etc/supervisor/conf.d# supervisorctl reread
+laravel-worker: changed
+root@01PARTICIP02:/etc/supervisor/conf.d# supervisorctl update
+laravel-worker: stopped
+laravel-worker: updated process group
+root@01PARTICIP02:/etc/supervisor/conf.d# supervisorctl restart all
+laravel-worker:laravel-worker_00: stopped
+laravel-worker:laravel-worker_00: started
+root@01PARTICIP02:/etc/supervisor/conf.d# supervisorctl status
+laravel-worker:laravel-worker_00   RUNNING   pid 66501, uptime 0:00:17
+ps aux | grep "artisan" | grep -v grep
+www-data  66501  0.4  0.2 324452 44524 ?        S    08:48   0:00 /usr/bin/php /DATA/participadmin.gov.md/htdocs/artisan queue:work --queue=high,normal,low --timeout=600 --sleep=3 --tries=1
+
+chmod -R 775 storage/logs/
+chown -R www-data:www-data  /DATA/participadmin.gov.md/htdocs/
