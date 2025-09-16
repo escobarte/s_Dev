@@ -125,3 +125,9 @@ www-data  66501  0.4  0.2 324452 44524 ?        S    08:48   0:00 /usr/bin/php /
 
 chmod -R 775 storage/logs/
 chown -R www-data:www-data  /DATA/participadmin.gov.md/htdocs/
+
+```
+## Update 9/15/2025
+Теперь Logs создаются от нужного пользователя - но permissions на файлы остались только четабельные. 
+В тот же файл /etc/supervisor/conf.d/laravel-worker.conf добавил
+umask=000   <-- тоже что и 777 

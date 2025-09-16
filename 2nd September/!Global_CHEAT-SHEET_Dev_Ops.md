@@ -1,3 +1,13 @@
+# How to search
+/ Найдём файл команды
+find /DATA/participadmin.gov.md/htdocs -name "*upervisor*" -type f | grep -i command
+
+/ Или поищем по содержимому
+grep -r "check_supervisor_status\|CheckSupervisor" /DATA/participadmin.gov.md/htdocs/app/Console/Commands/
+
+
+
+
 ## Docker Engine && Docker Compose
 
 ```bash
