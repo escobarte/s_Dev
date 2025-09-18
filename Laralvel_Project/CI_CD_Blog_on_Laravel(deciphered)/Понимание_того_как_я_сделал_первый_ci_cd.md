@@ -1,11 +1,11 @@
 # В случае что нужно рестарнауть Docker (docker stop - rm - run)
+
 cd /opt/ci-cd_laravel
 git checkout develop
 echo "# Restart test container" >> README.md
 git add README.md
 git commit -m "Trigger restart of test container"
 git push origin develop
-
 
 ## Шаг 1: Понимание что мы делаем
 
@@ -26,17 +26,17 @@ start.sh - скрипт который запускается при старт�
 
 ## Шаг 2: Создаём файлы для production-образ
 
-### 2.1 Dockerfile.prod 									(explained)
+### 2.1 Dockerfile.prod                                     (explained)
 
 ## Шаг 3: Создаём папку для конфигурационных файлов
 
-### 3.1 docker/nginx.conf 									(explained)
+### 3.1 docker/nginx.conf                                     (explained)
 
-### 3.2 docker/supervisord.conf #конфигурация supervisor 	(explained)
+### 3.2 docker/supervisord.conf #конфигурация supervisor     (explained)
 
 `В Docker-контейнере может работать только один главный процесс, но нам нужно nginx + php-fpm одновременно. Supervisor следит за обоими процессами и перезапускает их при падении.`
 
-### 3.3 docker/start.sh         #стартовый скрипт			(explained)
+### 3.3 docker/start.sh         #стартовый скрипт            (explained)
 
 1. Создаёт .env файл с настройками для production
 2. Создаёт SQLite базу данных  
@@ -55,7 +55,7 @@ docker build -f Dockerfile.prod -t laravel-blog-prod:test .
 
 --------------------------
 
-## Шаг 3: Создаём .gitlab-ci.yml для CI/CD   				(explained)	
+## Шаг 3: Создаём .gitlab-ci.yml для CI/CD                   (explained)
 
 ### 3.1 Включаем Container Registry в GitLab
 

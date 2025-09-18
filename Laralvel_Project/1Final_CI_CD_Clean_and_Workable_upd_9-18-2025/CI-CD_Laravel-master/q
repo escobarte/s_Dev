@@ -1,0 +1,46 @@
+* [1;34m9851159[m - [32mMon, 1 Sep 2025 16:37:47 +0300[m [1;33m(6 minutes ago)[m[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop-test-1[m[33m, [m[1;31morigin/develop-test-1[m[33m)[m[m
+[31m|[m  [37mmerge created[m [2;37m- root[m
+* [1;34m5a6e57e[m - [32mMon, 1 Sep 2025 16:31:08 +0300[m [1;33m(12 minutes ago)[m[m[33m ([m[1;31morigin/feature/add-new-functionality[m[33m, [m[1;32mfeature/add-new-functionality[m[33m)[m[m
+[31m|[m  [37mAdd new functionality test[m [2;37m- root[m
+* [1;34m86d4d74[m - [32mMon, 1 Sep 2025 16:26:48 +0300[m [1;33m(17 minutes ago)[m[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m[m
+[31m|[m  [37mfully modified logic for pipeline[skip ci][m [2;37m- root[m
+* [1;34md14c430[m - [32mMon, 1 Sep 2025 15:19:10 +0300[m [1;33m(84 minutes ago)[m[m[m
+[31m|[m  [37mmodified yml in develop branch[m [2;37m- root[m
+* [1;34ma75797d[m - [32mMon, 1 Sep 2025 14:57:03 +0300[m [1;33m(2 hours ago)[m[m[m
+[31m|[m  [37mreconfigured yml[m [2;37m- root[m
+* [1;34m5aee547[m - [32mMon, 1 Sep 2025 13:44:38 +0300[m [1;33m(3 hours ago)[m[m[m
+[31m|[m  [37mrecreated yml_v2[m [2;37m- root[m
+* [1;34me9f9009[m - [32mMon, 1 Sep 2025 13:40:07 +0300[m [1;33m(3 hours ago)[m[m[m
+[31m|[m  [37mrecreated yml[m [2;37m- root[m
+* [1;34mf01cab4[m - [32mMon, 1 Sep 2025 13:37:07 +0300[m [1;33m(3 hours ago)[m[m[m
+[31m|[m  [37mremoved yml file[m [2;37m- root[m
+* [1;34m103589e[m - [32mMon, 1 Sep 2025 13:35:40 +0300[m [1;33m(3 hours ago)[m[m[m
+[31m|[m  [37mzaebala[m [2;37m- root[m
+* [1;34m2de50a1[m - [32mMon, 1 Sep 2025 11:51:37 +0300[m [1;33m(5 hours ago)[m[m[m
+[31m|[m  [37mUpdate .gitlab-ci.yml file[m [2;37m- Sergiu Cusnir[m
+* [1;34m5b8ba1b[m - [32mMon, 1 Sep 2025 11:47:51 +0300[m [1;33m(5 hours ago)[m[m[m
+[31m|[m  [37mYML fixed Test 2[m [2;37m- root[m
+* [1;34m2a2a5cb[m - [32mMon, 1 Sep 2025 11:44:30 +0300[m [1;33m(5 hours ago)[m[m[m
+[31m|[m  [37mAdd CI/CD Pipeline - Test 1 date[m [2;37m- root[m
+* [1;34m0343852[m - [32mMon, 1 Sep 2025 11:27:31 +0300[m [1;33m(5 hours ago)[m[m[m
+[31m|[m  [37mchanged folder[m [2;37m- root[m
+* [1;34mb9c04da[m - [32mFri, 29 Aug 2025 13:55:05 +0300[m [1;33m(3 days ago)[m[m[m
+[31m|[m  [37mcreatedt ci.yml[m [2;37m- root[m
+* [1;34m33a88b4[m - [32mFri, 29 Aug 2025 13:51:11 +0300[m [1;33m(3 days ago)[m[m[m
+[31m|[m  [37minitializing[m [2;37m- root[m
+* [1;34mdbe92e1[m - [32mFri, 29 Aug 2025 13:49:14 +0300[m [1;33m(3 days ago)[m[m[m
+[31m|[m  [37mAdd README.md[m [2;37m- Sergiu Cusnir[m
+* [1;34m1420438[m - [32mFri, 29 Aug 2025 13:34:17 +0300[m [1;33m(3 days ago)[m[m[m
+[31m|[m  [37mDelete .gitlab-ci.yml[m [2;37m- Sergiu Cusnir[m
+* [1;34m7c5b877[m - [32mFri, 29 Aug 2025 11:20:20 +0300[m [1;33m(3 days ago)[m[m[m
+[31m|[m  [37mUpdate .gitlab-ci.yml file[m [2;37m- Sergiu Cusnir[m
+* [1;34m75e668b[m - [32mFri, 29 Aug 2025 11:18:43 +0300[m [1;33m(3 days ago)[m[m[m
+[31m|[m  [37mUpdate .gitlab-ci.yml file asked for IP updated[m [2;37m- Sergiu Cusnir[m
+* [1;34m7f4205e[m - [32mFri, 29 Aug 2025 11:16:38 +0300[m [1;33m(3 days ago)[m[m[m
+[31m|[m  [37mUpdate .gitlab-ci.yml file asked for IP[m [2;37m- Sergiu Cusnir[m
+* [1;34me7dd8d4[m - [32mFri, 29 Aug 2025 11:15:19 +0300[m [1;33m(3 days ago)[m[m[m
+[31m|[m  [37mUpdate .gitlab-ci.yml file moved to srv 93.7[m [2;37m- Sergiu Cusnir[m
+* [1;34m227936b[m - [32mFri, 29 Aug 2025 10:28:11 +0300[m [1;33m(3 days ago)[m[m[m
+[31m|[m  [37mFirst initialinazation .gitlab-ci.yml file Upd: added 2 echo[m [2;37m- Sergiu Cusnir[m
+* [1;34mf7e1add[m - [32mFri, 29 Aug 2025 10:26:30 +0300[m [1;33m(3 days ago)[m[m[m
+   [37mFirst initialinazation .gitlab-ci.yml file stage: smoke[m [2;37m- Sergiu Cusnir[m
