@@ -1,0 +1,49 @@
+------------------------------------------------------------------------------------------------
+Types of kuber:
+1. minikube (Master and Workers on the same environment) - good for local env, study, tests
+2. kubeadm (Production-like cluster, real arhitecture Kubernetes, possibility of HA, practice for real sotrage and network models)
+3. 
+------------------------------------------------------------------------------------------------
+Kubernetes - written on GO
+For: 
+Автоматизация контейнеров - Развёртывание, Масштабирование, Управление.
+--- K8s 
+Основной компонент = Cluster состоящий из Nodes
+1. Worker Nodes = сервера на котором запускаются и работают конейнеры
+2. Master Nodes = главный сервер который управляет Worker Nodes
+
+--- Master Node = 3 main process k8s
+* kube-apiserver
+* kuber-controller-manager
+* kube-scheduler
+--- Worker Node = 2 main process k8s
+* kubelet
+* kube-proxy
+
+6 Main Aspects
+1. Service discovery and load balancing
+2. Storage orchestration (Automatically mount a storage system of your choice)
+3. Automated rollouts and rollbacks (Automatic do update to Docker image or other)
+4. Automatic bin packing (You tell k8s how much CPU and RAM each container needs, and it can fit containers onto you nodes to make the best use of your resources)
+5. Self-healing (Restart, Replace, kills)
+6. Secret and configuration management
+
+---------------------------------------------------------------------------------------
+
+minikube status
+kubectl get pods -A
+kubectl getg nodes
+kubectl config view
+kubectl config current-context
+docker ps | grep minikube # Проверим, использует ли minikube Docker
+docker system df # Проверяем, что Docker чист (если используешь Docker)
+# Проверяем, что нет остатков пакетов k8s
+dpkg -l | grep -E "kube|k8s"     # для Debian/Ubuntu
+rpm -qa | grep -E "kube|k8s"      # для RHEL/CentOS
+wchich kubectl
+whicth minikube
+ps aux | grep minikube
+-----------------------
+uname -a
+
+

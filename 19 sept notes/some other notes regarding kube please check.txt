@@ -1,0 +1,48 @@
+echo "CPU: $(nproc) cores, RAM: $(free -h | awk '/^Mem:/ {print $2}')"
+# CPU info
+lscpu
+# Memory info
+free -h
+# Or both at once
+cat /proc/cpuinfo | grep "model name" | head -1
+cat /proc/meminfo | grep MemTotal
+
+df -h /
+lsblk
+parted /dev/sdb print free
+
+
+
+# Available 20-30 GB
+# Disable swap (K8s requirement)
+# Install && Configure containerd
+----------------------Structure-----------------------
+What will be in /opt/kubernetes/:
+
+Container images and runtime data
+kubelet working directories
+etcd database (on control plane)
+Pod logs and temporary files
+
+What will still be elsewhere:
+
+Kubernetes binaries: /usr/bin/ (kubeadm, kubelet, kubectl)
+System configs: /etc/kubernetes/
+Service files: /etc/systemd/system/
+
+Think of it this way:
+
+Programs stay in standard locations
+Data goes to your dedicated storage
+------------------------------------------------------------
+
+
+10.100.93.5 - /dev/mapper/OS-root   12G   11G  975M  92% / Unallocated free space / 32.1GB 
+10.100.93.6 - /dev/mapper/OS-root   12G  9.1G  2.4G  80% / Unallocated free space / 23.6GB 
+10.100.93.7 - /dev/mapper/OS-root   34G  9.5G   24G  29% / Unallocated free space / 36.1GB
+
+Created a new partition 8 of type 'Linux' and of size 23 GiB.
+/dev/sdb8       105093120 153327615 48234496   23G 83 Linux
+Changed type of partition 'Linux' to 'Linux LVM'.
+/dev/sdb8       105093120 153327615 48234496   23G 8e Linux LVM
+sudo lvcreate -n netes -l 5887 vg_kuber

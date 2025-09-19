@@ -6,12 +6,15 @@ find /DATA/participadmin.gov.md/htdocs -name "*upervisor*" -type f | grep -i com
 grep -r "check_supervisor_status\|CheckSupervisor" /DATA/participadmin.gov.md/htdocs/app/Console/Commands/
 
 
-
+echo "CPU: $(nproc) cores, RAM: $(free -h | awk '/^Mem:/ {print $2}')"
 
 ## Docker Engine && Docker Compose
 
 ```bash
 /var/lib/docker     # volumes
+docker rm -f $(docker ps -a -q)
+docker image prune -a
+docker rmi $(docker images -a -q)
 docker 
 docker ps / docker ps -a
 watch -n2 docker ps
@@ -34,7 +37,11 @@ docler logs blog-online | tail -40 / tail -f
 ```
 
 ## Git
-
+```
+git checkout master
+git branch -D develop-updates
+git pull origin master
+```
 ```bash
 git add . && git commit -m"Some Comments [skip ci] _ $(date +%m-%d_%H-%M-%S)" && git push
 git add . && git commit -m"Some Comments [skip ci]" && git push
