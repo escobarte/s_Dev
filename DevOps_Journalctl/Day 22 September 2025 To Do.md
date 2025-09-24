@@ -9,6 +9,7 @@ Also, please Do instalation correct, to use space created on sdb6
 
 Please. First of all.
 Strucutre all notes. Keep your work clean and smart.
+
 As idea was:
 10.100.93.5 - Kubernetes Server Main
 10.100.93.6 - 
@@ -20,5 +21,6 @@ As idea was:
 1. [] Install and configure Minikube
 2. [] Start practice 
 3. [] Prepare Plan of activity
+4. [] Structure all notes
 
 ```

@@ -1,11 +1,4 @@
 sudo du -sh /var/* | sort -hr
-4.0G    /var/lib
-130M    /var/cache
-79M     /var/www
-35M     /var/log
-2.1M    /var/backups
-4.0K    /var/tmp
-
 # Find the largest directories in root
 sudo du -h --max-depth=2 / 2>/dev/null | sort -hr | head -20
 # Find large files over 100MB
@@ -18,15 +11,12 @@ sudo journalctl --vacuum-time=7d
 sudo docker system df
 
 sudo du -sh /var/lib/docker/overlay2/
-1.1G    /var/lib/docker/overlay2/
 sudo du -sh /usr/*/ | sort -hr
 
 # Check package cache and installed software
 sudo du -sh /usr/share/* | sort -hr | head -10
 sudo du -sh /usr/lib/* | sort -hr | head -10
 sudo du -sh /usr/bin /usr/sbin
-
-
 
 # Disk Space Analysis & Cleanup Commands Summary
 
