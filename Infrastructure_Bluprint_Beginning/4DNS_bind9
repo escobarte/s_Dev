@@ -1,0 +1,127 @@
+DNS /bind9
+
+### Step1: LVM creating
+
+sdb              8:16   0   30G  0 disk
+└─sdb1           8:17   0   30G  0 part
+  └─DNS-lv     252:3    0    3G  0 lvm  /mnt/dns
+sr0             11:0    1 1024M  0 rom
+
+#Creating New partition 'sdb1' and LVM
+sudo fdisk /dev/sdb
+# Внутри fdisk: n, p, 1, Enter, Enter, t, 8e, p, w
+pvcreate /dev/sdb1
+vgcreate DNS /dev/sdb1
+lvcreate -n lv -L 3G DNS
+mkfs.ext4 /dev/DNS/lv
+mkdir -p /mnt/dns
+echo '/dev/DNS/lv /mnt/dns ext4 defaults 2 0' | sudo tee -a /etc/fstab
+mount -a
+systemctl daemon-reload
+
+### Step2: BIND9 on 93.8
+
+		***я столкнулся с поблемой что после симлинка на LVM, сервис не запускасля. Проблема оказалась в Apparmor (в том числе)
+		journalctl -xeu named.service
+		Jun 17 13:25:07 DSI-SAS-Lab-Test-01DB01 named[19085]: open: /etc/bind/named.conf: permission denied
+		Jun 17 13:25:07 DSI-SAS-Lab-Test-01DB01 named[19085]: loading configuration: permission denied
+		Jun 17 13:25:07 DSI-SAS-Lab-Test-01DB01 named[19085]: exiting (due to fatal error)
+
+
+sudo apt install bind9 bind9utils bind9-doc
+sudo systemctl stop named
+sudo rsync -avP /etc/bind/ /mnt/dns/bind/
+				// Пока не нужно //
+				sudo rsync -avP /var/cache/bind/ /mnt/dns/cache/
+				sudo rsync -avP /var/lib/bind/ /mnt/dns/lib/
+				sudo rm -rf /etc/bind
+				sudo ln -s /mnt/dns/bind /etc/bind
+				sudo rm -rf /var/cache/bind
+				sudo ln -s /mnt/dns/cache /var/cache/bind
+				sudo rm -rf /var/lib/bind
+				sudo ln -s /mnt/dns/lib /var/lib/bind
+				//
+
+sudo chown -R bind:bind /mnt/dns/bind
+sudo chmod -R 775 /mnt/dns/bind
+				// Пока не нужно //
+				sudo chown -R bind:bind /mnt/dns/cache
+				sudo chmod -R 775 /mnt/dns/cache
+				sudo chown -R bind:bind /mnt/dns/lib
+				sudo chmod -R 775 /mnt/dns/lib
+				sudo chown root:root /mnt/dns
+				sudo chmod 755 /mnt/dns
+
+sudo nano /etc/apparmor.d/usr.sbin.named
+# Добавьте в соответствующие секции (под строками для /etc/bind/**,):
+# /mnt/dns/bind/** r,
+
+sudo systemctl reload apparmor
+sudo systemctl start named
+sudo systemctl enable named
+
+### Step 3: Мигрирую bind из /etc/bind -> /mnt/dns/bind
+
+Сейчас named по умолчанию ищет конфиги в /etc/bind, потому что так задано в systemd unit-файле. Указываем ему новый путь на /mnt/dns/bind
+#удалим symlink
+rm -rf /etc/bind
+sudo mkdir -p /etc/systemd/system/named.service.d/
+sudo nano /etc/systemd/system/named.service.d/override.conf
+		[Service]
+		ExecStart=
+		ExecStart=/usr/sbin/named -f -c /mnt/dns/bind/named.conf
+sudo systemctl daemon-reload
+nano /mnt/dns/bind/named.conf #change paths
+		include "/mnt/dns/bind/named.conf.options";
+		include "/mnt/dns/bind/named.conf.local";
+		include "/mnt/dns/bind/named.conf.default-zones";
+systemctl daemon-reload
+systemctl start named
+systemctl enable named
+systemctl status named
+#########managed-keys.bind.jnl: open: permission denied
+ find / -name managed-keys.bind.jnl
+ /var/cache/bind/managed-keys.bind.jnl
+systemctl stop named.service
+pkill -9 named
+rm -f /var/cache/bind/managed-service-keys.bind.jnl
+systemctl daemon-reload
+systemctl start named.service
+systemctl status named.service # received ok
+journalclt -xeu named.serice // new issues appear
+grep -r "zone \"localhost\"" /mnt/dns/bind/ #покажет, который файл содержит зоны 'localhost'
+nano named.conf.default-zones
+nano named.conf.local
+sudo named-checkconf /mnt/dns/bind/named.conf
+sudo systemctl restart named.service
+sudo systemctl status named.service
+sudo journalctl -xeu named.service
+
+### Step 4: Config zones lab.local
+nano /mnt/dns/bind/named.conf.local
+		zone "lab.local" {
+		    type master;
+		    file "/mnt/dns/bind/db.lab.local";
+		};
+
+sudo cp /mnt/dns/bind/db.local /mnt/dns/bind/db.lab.local
+sudo nano /mnt/dns/bind/db.lab.local
+				$TTL    604800
+				@       IN      SOA     lab.local. root.lab.local. (
+				                              2         ; Serial
+				                         604800         ; Refresh
+				                          86400         ; Retry
+				                        2419200         ; Expire
+				                         604800 )       ; Negative Cache TTL
+
+				; NS-запись — это минимальное требование
+				        IN      NS      lab.local.
+
+				; A-запись для app.lab.local → публичный IP VIP
+				app     IN      A       185.108.183.205
+
+sudo named-checkconf /mnt/dns/bind/named.conf
+sudo named-checkzone lab.local /mnt/dns/bind/db.lab.local
+sudo systemctl restart named
+sudo systemctl status named
+

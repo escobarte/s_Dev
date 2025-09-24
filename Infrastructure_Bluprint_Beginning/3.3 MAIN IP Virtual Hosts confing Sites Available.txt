@@ -1,0 +1,47 @@
+У меня сейчас резолвиться app.lab.local на 185.108.183.205 и открывается только laravel
+laravel стоит на app01 app02 app03, работает с помощью apache2
+также на app03 стоит zabbix-server, я когда ввожу 10.100.93.7/zabbix = он открывается
+задача:
+сделать так чтобы вводя laravel.lab.local -> 185.108.183.205 = Laravel-приложение
+и 
+zabbix.lab.local -> 185.108.183.205 = Zabbix-приложение (10.100.93.7/zabbix)
+
+
+Клиент -> +--> laravel.lab.local   => Nginx Proxy → App01/App02/App03 (laravel)
+          |
+          +--> zabbix.lab.local   => Nginx Proxy → App03 (10.100.93.7/zabbix)
+		  
+1. На 10.100.93.3 модификация conf nginx
+WAS --> /etc/nginx/sites-available/app.lab.local.conf
+NOW -> +--> /etc/nginx/sites-available/laravel.lab.local.conf
+	   |
+	   +--> /etc/nginx/sites-available/zabbix.lab.local.conf
+#Changes in conf files (fro zabbix upstream, for laravle upstream)
+# Upstream — Zabbix (App03)
+upstream zabbix_backend {
+    server 10.100.93.7 max_fails=1 fail_timeout=1s;
+}
+# HTTPS Server
+server {
+    listen 443 ssl;
+    server_name zabbix.lab.local;
+...
+    location / {
+        proxy_pass http://zabbix_backend/zabbix/;
+...
+}
+
+!!! conf для zabbix !!!
+Там будет ssl, так как я его создал для app.lab.local --> используй его.
+2. Удалям старые симлинки и создаем новые
+rm /etc/nginx/sites-enabled/*
+ln -s /etc/nginx/sites-available/laravel.lab.local.conf /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/zabbix.lab.local.conf /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+
+#Была проблема что zabbix не логинлся, потому что у нево парковка на 10.100.93.7/zabbix . То есть из за /zabbix
+#Проблема оказалсь в proxy_cookie_path, в zabbix conf я добавил
+proxy_cookie_path /zabix /;
+
+
+

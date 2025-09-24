@@ -1,0 +1,27 @@
+- name: Copy configs from Legacy 1.24.0
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+    follow: yes
+  loop: "{{ nginx_files_to_copy }}"
+
+- name: Create a new directory
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Create a new directory
+  ansible.builtin.file:
+    path: /etc/nginx/sites-available
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+    

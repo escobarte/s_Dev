@@ -1,0 +1,55 @@
+Работа с DNS
+sudo nano /etc/systemd/resolved.conf - я тут нашёл уже что я что то делал
+/step 1
+apt isntall dnsmasq
+systemctl stop dnsmasq
+
+# Разрешить входящие DNS-запросы (UDP и TCP) только с вашего ПК (172.29.31.24) # на порт 53 (порт DNS-сервера) вашего Linux-сервера.
+iptables -L INPUT --line-numbers
+sudo iptables -I INPUT 4 -p udp -s 172.29.31.24 --dport 53 -j ACCEPT
+sudo iptables -I INPUT 5 -p tcp -s 172.29.31.24 --dport 53 -j ACCEPT
+sudo iptables -L -n -v
+sudo netfilter-persistent save
+
+#Лучше создать отдельный файл в /etc/dnsmasq.d/, чтобы не изменять основной dnsmasq.conf.
+nano /etc/dnsmasq.d/local_dns.conf
+	listen-address=127.0.0.1,10.100.93.3
+	server=8.8.8.8
+	server=8.8.4.4
+	cache-size=1000
+	address=/nginxproxy1.local/10.100.93.3   # Предполагаем домен .local для локальных ресурсов
+	address=/nginxproxy2.local/10.100.93.4
+	adderss=/app.lab.local/10.100.93.2 #VIP 
+sudo systemctl start dnsmasq
+sudo systemctl enable dnsmasq
+sudo systemctl status dnsmasq
+
+
+/ Troubleshooting
+{ bad option at line 7 of /etc/dnsmasq.d/local_dns.conf
+ failed to create listening socket for port 53: Address already in use}
+ls -l /proc/720
+***RESULT***systemd-resolve systemd-resolve
+sudo ss -upan 'sport = :domain' || sudo lsof -i UDP:53
+sudo ss -utan 'sport = :domain' || sudo lsof -i TCP:53
+***Solutions***
+nano /etc/systemd/resolved.conf
+***set this parameter***
+DNSStubListener=no
+ systemctl restart systemd-resolved
+
+
+******************** ON PC ********************************
+Add DNS
+10.100.93.3
+CMD: ipconfig /flushdns
+nslookup nginxproxy1.local
+
+*** Removing dnsmasq***
+systemctl stop dnsmasq
+sustemctl disable dnsmasq
+apt remove dnsmasq
+find / -name dnsmasq # ищем всё что связано с dnsmasq
+rm -f *all paths that was find*
+sudo find / -type f -iname "*dnsmasq*" 2>/dev/null #найти всё возможные файлы связанные с dnsmasq
+

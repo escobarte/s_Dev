@@ -1,0 +1,32 @@
+````
+docker build -t redis_img -<<EOF
+
+FROM redis
+VOLUME /data
+
+EOF
+````
+docker run --rm --name redis_cont -d --mount type=volume,source=data,destination=/data redis_img
+docker volume ls
+docker exec -it redis_cont bash
+redis-cli
+set mykey foobar
+get mykey
+save
+exit
+
+ls
+exit
+
+ll /var/lib/docker/
+
+потом я сделал
+docker run --rm --name redis_cont2 -d --mount type=volume,source=data,destination=/data 
+docker exec -it redis_cont2 bash
+redis-cli
+get mykey
+"foobar"
+exit exit
+
+
+

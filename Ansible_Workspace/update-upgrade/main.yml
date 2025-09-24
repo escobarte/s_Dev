@@ -1,0 +1,25 @@
+---
+- name: Update and upgrade all servers
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt chache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+        autoremove: yes
+      register: upgrade_result
+
+    - name: Show upgrade summary
+      debug:
+        msg: |
+          Host: {{ inventory_hostname }}
+          Changed: {{ upgrade_result.changed }}
+          Packages upgraded: {{ upgrade_result.stdout_lines | select('search', 'upgraded') | list }}
+          Packages removed: {{ upgrade_result.stdout_lines | select('search', 'removed') | list }}
+          Packages newly installed: {{ upgrade_result.stdout_lines | select('search', 'newly installed') | list }}
+

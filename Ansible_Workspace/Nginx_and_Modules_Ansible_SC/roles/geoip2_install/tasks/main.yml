@@ -1,0 +1,70 @@
+---
+- name: Ensure nginx source tarball (matching playbook version)
+  get_url:
+    url: "https://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
+    dest: "/usr/local/src/nginx-{{ nginx_version }}.tar.gz"
+    mode: '0644'
+
+- name: Ensure nginx source extracted
+  unarchive:
+    src: "/usr/local/src/nginx-{{ nginx_version }}.tar.gz"
+    dest: "/usr/local/src/"
+    remote_src: yes
+
+- name: Clone ngx_http_geoip2_module
+  git:
+    repo: "https://github.com/leev/ngx_http_geoip2_module.git"
+    dest: "/usr/local/src/ngx_http_geoip2_module"
+    depth: 1
+
+- name: Configure Nginx with GeoIP2 dynamic module
+  command: ./configure --with-compat --add-dynamic-module=../ngx_http_geoip2_module
+  args:
+    chdir: "{{ nginx_src_dir }}"
+
+- name: Build Nginx GeoIP2 dynamic module
+  command: make modules
+  args:
+    chdir: "{{ nginx_src_dir }}"
+
+- name: Copy GeoIP2 dynamic module to nginx modules directory
+  copy:
+    src: "{{ nginx_src_dir }}/objs/ngx_http_geoip2_module.so"
+    dest: "/usr/lib/nginx/modules/ngx_http_geoip2_module.so"
+    mode: '0644'
+    remote_src: yes
+
+# 7. Установка geoipupdate
+- name: Install geoipupdate
+  apt:
+    name: geoipupdate
+    state: present
+    update_cache: true
+  tags: geoip2
+
+# 8. Place GeoIP.conf (тут нужны твои license_key и account_id!)
+- name: Place GeoIP.conf (вставь свои ключи)
+  copy:
+    dest: /etc/GeoIP.conf
+    content: |
+      # Substitute YOUR_ACCOUNT_ID and YOUR_LICENSE_KEY!
+      AccountID 1201859
+      LicenseKey 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
+      EditionIDs GeoLite2-City GeoLite2-Country
+  tags: geoip2
+
+# 9. Скачиваем свежие базы GeoIP2
+- name: Update GeoIP2 databases
+  command: geoipupdate
+  tags: geoip2
+
+- name: List downloaded GeoIP2 mmdb files
+  shell: ls -lh /var/lib/GeoIP/
+  register: geoip2_db_list
+  changed_when: false
+  tags: geoip2
+
+- name: Print GeoIP2 databases found
+  debug:
+    var: geoip2_db_list.stdout_lines
+  tags: geoip2

@@ -1,0 +1,80 @@
+
+#vi pod.yaml
+````
+apiVersion: v1
+kind: Pod
+metadata:
+name: my-pod
+spec:
+containers :
+- image: nginx: 1.12
+name: nginx
+ports:
+- containerPort: 80
+
+=====>>>>> code <<<<<<======
+kubectl create -f pod.yaml
+kubectl get pod
+vi pod.yaml #поменял my-pod на my-pod-1
+kubectl create -f pod.yaml
+kubectl get pod
+=====>>>>> code <<<<<<======
+---
+vi replicaset.yaml
+---
+========================================================================
+	>>>>>> Описание объекта ReplicaSet <<<<<<
+========================================================================
+apiVersion: apps/v1					#Группа и версия API.Для ReplicaSet всегда apps/v1.
+kind: ReplicaSet					#Тип создаваемого объекта — ReplicaSet (реплика-сет).
+metadata:							#Метаданные объекта. — имя ReplicaSet
+  name: my-replicaset
+spec:								#Главный блок, описывающий, что нужно создать и как.
+  replicas: 2						#Сколько экземпляров (Pod’ов) нужно поддерживать (всегда будет 3).
+  selector:							#Как ReplicaSet будет "искать" свои поды по меткам (labels).
+    matchLabels:
+      app: my-app					#ReplicaSet будет управлять только подами с такой меткой.
+   template:
+      metadata:
+        labels: my-app				#метка (label), которую получит каждый под.
+    spec:							#Описание контейнеров внутри пода.
+      containers:
+        - image: nginx:1.12			#образ для контейнера.
+          name: nginx				#имя контейнера.
+          ports:
+            - containerPort: 80		#какие порты пробрасывать (80).
+			
+	>>>>>> Кратко: что делает этот YAML <<<<<<
+$Создаёт ReplicaSet с именем my-replicaset.
+$ReplicaSet поддерживает всегда 3 pod’а.
+$В каждом pod’е — контейнер nginx:1.12, порт 80.
+$Все pod’ы помечаются меткой app: my-app.
+
+
+=====>>>>> code <<<<<<======
+
+kubectl create -f replicaset.yaml
+kubectl get replicasets.apps
+kubectl get rs
+kubectl get po
+
+=====>>>>> code <<<<<<======
+
+========================================================================
+	>>>>>> Scaling в ручную <<<<<<
+========================================================================
+[info] в yaml я добавлю ноду, с 2х до 3х
+[code]
+kubectl apply -f replicaset.yaml #apply доя применения изменений
+kubectl get rs
+kubectl get po
+[info] если удалить одну из подов, ReplicaSet сам поднимет. Также если запустим больше подов, он её сам убйот
+kubectl scale --replicas=5 replicaset my-replicaset
+kubectl describe rs my-replicas
+kubectl get pod --show-labels
+kubectl describe pod my-replicaset-7cz9z
+========================================================================
+	>>>>>> Накатить апгрей в версии внутри манифеста <<<<<<
+========================================================================
+[info] Прописываешь нужную версию в файле манифеста, после нужно убить pods чтобы они перезапустились
+kubectl delete po my-replicaset-(7cz9z) # все поды, после после востановления - всё вернётся на круги своя с нужной версией, это как типо ребут слелать

@@ -1,0 +1,45 @@
+/etc/iptables/rules.v4
+/usr/lib/systemd/system/iptables.service. # сервис iptables находится тут 
+iptables -L -n -v
+iptalbles -S
+..Как искать файл в убунту
+	which iptables-save
+	whereis iptables-save
+	find / -name iptables-save
+
+
+..Делам бэкверсию для iptables!!!
+iptables-save > ~/iptables_rules_before_changes.conf //можно по чаще делать сохранения, но не забывай писать версию сохранения.
+chmod +x ~/iptables_rules_before_changes.conf
+### В случае рестор 
+iptables-restore < ~/iptables_rules_before_changes.conf
+
+..
+sudo iptables -L INPUT --line-numbers #найти нужную строку в iptables
+sudo iptables -D INPUT 5 # comment
+iptables -I INPUT 5 -p icmp --icmp-type echo-request -s 172.29.31.0/24 -j ACCEPT # добвить строку в нужный ряд
+
+..
+sudo apt install iptables iptables-persistent
+sudo iptables -L -n -v
+sudo iptables -L INPUT --line-numbers
+sudo iptables -F
+sudo iptables -A INPUT -i lo -j ACCEPT
+sudo iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 22 -s 172.29.31.16/28 -j ACCEPT
+sudo iptables -A INPUT -p tcp -m multiport --dports 80,443 -j ACCEPT
+sudo iptables -I INPUT -p icmp --icmp-type echo-request -s 172.29.31.16/28 -j ACCEPT
+sudo iptables -P INPUT DROP
+sudo iptables -P FORWARD DROP
+sudo iptables -P OUTPUT ACCEPT
+
+sudo apt install netfilter-persistent
+sudo netfilter-persistent save
+find / -name iptables-save == #/usr/sbin/iptables-save
+
+sudo apt install nmap
+namp 10.100.93.4
+#Nginx должен быть доступен снаружи по 80 и 443 портам, как проверить.
+sudo iptables -L INPUT -v -n | grep -E '80|443'
+sudo ss -tuln | grep -E '80|443' /какие порты слушает Nginx
+sudo netstat -tuln | grep -E '80|443'

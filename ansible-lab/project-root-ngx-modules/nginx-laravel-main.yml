@@ -1,8 +1,0 @@
----
-- name: Install Nginx Mainline v1.29.0 from source (no modules yet)
-  hosts: all
-  become: yes
-  vars_files:
-    - vars/main.yml
-  roles:
-    - ngx-build-and-modules

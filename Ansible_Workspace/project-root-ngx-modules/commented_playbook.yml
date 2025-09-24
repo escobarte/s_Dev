@@ -1,0 +1,381 @@
+---
+# --- 1. Установка зависимостей для сборки Nginx и модулей ---
+      # Стандартные утилиты, библиотеки для сборки из исходников, поддержки SSL, GeoIP2, ModSecurity
+- name: Instlling dependcies and build  Nginx и ModSecurity
+  apt:
+    name:
+      - build-essential
+      - libpcre3
+      - libpcre3-dev
+      - zlib1g
+      - zlib1g-dev
+      - libssl-dev
+      - wget
+      - curl
+      - git
+      - pkg-config
+      - gcc
+      - make
+      - automake
+      - libtool
+      - libxml2
+      - libxml2-dev
+      - libyajl-dev
+      - libcurl4-openssl-dev
+      - libmaxminddb0
+      - libmaxminddb-dev
+      - mmdb-bin
+      - geoipupdate
+    state: present
+    update_cache: yes
+
+# --- 2. Скачиваем и распаковываем исходники Nginx ---
+- name: Download Nginx from source
+  get_url:
+    url: "https://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
+    dest: "/usr/local/src/nginx-{{ nginx_version }}.tar.gz"
+    mode: '0644'
+
+- name: Unpacking Nginx from source
+  unarchive:
+    src: "/usr/local/src/nginx-{{ nginx_version }}.tar.gz"
+    dest: "/usr/local/src/"
+    remote_src: yes
+
+# --- 4. Клонируем репозитории модулей GeoIP2 и ModSecurity ---
+- name: Clone ngx_http_geoip2_module
+  git:
+    repo: "https://github.com/leev/ngx_http_geoip2_module.git"
+    dest: "/usr/local/src/ngx_http_geoip2_module"
+    depth: 1
+    force: yes
+
+- name: Clone ModSecurity
+  git:
+    repo: "https://github.com/SpiderLabs/ModSecurity"
+    dest: "/usr/local/src/ModSecurity"
+    depth: 1
+    force: yes
+
+# --- 5. Сборка библиотеки ModSecurity ---
+- name: Init ModSecurity submodules
+  command: git submodule init
+  args:
+    chdir: /usr/local/src/ModSecurity
+
+- name: Update ModSecurity submodules
+  command: git submodule update
+  args:
+    chdir: /usr/local/src/ModSecurity
+
+- name: Run build.sh (ModSecurity)
+  command: ./build.sh
+  args:
+    chdir: /usr/local/src/ModSecurity
+
+- name: Run configure for ModSecurity
+  command: ./configure
+  args:
+    chdir: /usr/local/src/ModSecurity
+
+- name: Build libmodsecurity (make)
+  shell: make -j"$(nproc)"
+  args:
+    chdir: /usr/local/src/ModSecurity
+
+- name: Install libmodsecurity (make install)
+  command: make install
+  args:
+    chdir: /usr/local/src/ModSecurity
+
+# --- 6. Клонируем коннектор ModSecurity для nginx ---
+- name: Clone ModSecurity-nginx connector
+  git:
+    repo: "https://github.com/SpiderLabs/ModSecurity-nginx.git"
+    dest: "/usr/local/src/ModSecurity-nginx"
+    depth: 1
+    force: yes
+
+# --- 7. Собираем Nginx c модулями (GeoIP2, ModSecurity) ---
+- name: Build Nginx with GeoIP2 and ModSecurity (dynamic modules)
+  shell: |
+    export LD_LIBRARY_PATH=/usr/local/modsecurity/lib:$LD_LIBRARY_PATH
+    export PKG_CONFIG_PATH=/usr/local/modsecurity/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd {{ nginx_src_dir }}
+    make clean || true
+    ./configure \
+      --prefix=/etc/nginx \
+      --conf-path=/etc/nginx/nginx.conf \
+      --sbin-path=/usr/sbin/nginx \
+      --pid-path=/var/run/nginx.pid \
+      --lock-path=/var/lock/nginx.lock \
+      --error-log-path=/var/log/nginx/error.log \
+      --http-log-path=/var/log/nginx/access.log \
+      --user={{ nginx_user }} \
+      --group={{ nginx_user }} \
+      --with-http_ssl_module \
+      --with-http_v2_module \
+      --with-compat \
+      --add-dynamic-module=../ngx_http_geoip2_module \
+      --add-dynamic-module=../ModSecurity-nginx
+    make && make install && make modules
+  args:
+    chdir: "{{ nginx_src_dir }}"
+    # intentionally no 'creates', чтобы таска не пропускалась при ошибках
+
+# --- 3. Копируем базовый nginx.conf (или твой кастомный) ---
+- name: Copy nginx.conf 
+  ansible.builtin.copy:
+    src: /mnt/d/s_dev_ops/ansible-lab/project-root-ngx-modules/files/nginx.conf  # локальный путь
+    dest: /etc/nginx/nginx.conf   # куда на сервере
+    owner: root                   # или "{{ nginx_user }}"
+    group: root
+    mode: '0644'
+    force: yes
+
+
+# --- 8. Копируем скомпилированные модули в папку /etc/nginx/modules ---
+- name: Ensure /etc/nginx/modules exists
+  file:
+    path: /etc/nginx/modules
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy GeoIP2 dynamic module to nginx modules directory
+  copy:
+    src: "{{ nginx_src_dir }}/objs/ngx_http_geoip2_module.so"
+    dest: "/etc/nginx/modules/ngx_http_geoip2_module.so"
+    mode: '0644'
+    remote_src: yes
+
+- name: Copy ModSecurity dynamic module to nginx modules directory
+  copy:
+    src: "{{ nginx_src_dir }}/objs/ngx_http_modsecurity_module.so"
+    dest: "/etc/nginx/modules/ngx_http_modsecurity_module.so"
+    mode: '0644'
+    remote_src: yes
+
+# --- 9. Создаём пользователя под nginx ---
+- name: Create  nginx_user
+  user:
+    name: "{{ nginx_user }}"
+    shell: /usr/sbin/nologin
+    system: yes
+    create_home: no
+
+# --- 10. Создаём systemd unit для управления nginx через systemctl ---
+- name: systemd unit for Nginx 
+  copy:
+    dest: /lib/systemd/system/nginx.service
+    content: |
+      [Unit]
+      Description=A high performance web server and a reverse proxy server
+      Documentation=man:nginx(8)
+      After=network-online.target remote-fs.target nss-lookup.target
+      Wants=network-online.target
+      ConditionFileIsExecutable=/usr/sbin/nginx
+
+      [Service]
+      Type=forking
+      PIDFile=/run/nginx.pid
+      ExecStartPre=/usr/sbin/nginx -t -q -g 'daemon on; master_process on;'
+      ExecStart=/usr/sbin/nginx -g 'daemon on; master_process on;'
+      ExecReload=/usr/sbin/nginx -g 'daemon on; master_process on;' -s reload
+      ExecStop=-/sbin/start-stop-daemon --quiet --stop --retry QUIT/5 --pidfile /run/nginx.pid
+      TimeoutStopSec=5
+      KillMode=mixed
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: '0644'
+
+# --- 11. Создаём стандартные папки для виртуальных хостов ---
+- name: Create sites-available and sites-enabled
+  file:
+    path: "/etc/nginx/{{ item }}"
+    state: directory
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    mode: '0755'
+  loop:
+    - sites-available
+    - sites-enabled
+
+- name: Restart systemd daemon
+  systemd:
+    daemon_reload: yes
+
+# --- 12. Настраиваем GeoIP2: конфиг и обновление баз ---
+- name: Place GeoIP.conf 
+  copy:
+    dest: /etc/GeoIP.conf
+    content: |
+      AccountID 1201859
+      LicenseKey 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
+      EditionIDs GeoLite2-City GeoLite2-Country
+  tags: geoip2
+
+- name: Update GeoIP2 databases
+  command: geoipupdate
+  tags: geoip2
+
+# --- 13. Вставляем строки подключения модулей в nginx.conf ---
+- name: Ensure load_module line for GeoIP2 в начале nginx.conf
+  lineinfile:
+    path: /etc/nginx/nginx.conf
+    line: 'load_module modules/ngx_http_geoip2_module.so;'
+    insertafter: BOF
+    state: present
+
+- name: Ensure load_module line for ModSecurity в начале nginx.conf
+  lineinfile:
+    path: /etc/nginx/nginx.conf
+    line: 'load_module modules/ngx_http_modsecurity_module.so;'
+    insertafter: 'load_module modules/ngx_http_geoip2_module.so;'
+    state: present
+
+# --- 14. Запускаем и включаем nginx как сервис ---
+- name: Enable and run Nginx
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+
+# --- 15. Создаём базовый конфиг ModSecurity ---
+- name: Create directory for ModSecurity config
+  file:
+    path: /etc/nginx/modsec
+    state: directory
+    mode: '0755'
+  tags: nginxcfg
+
+- name: Download modsecurity.conf-recommended
+  get_url:
+    url: https://raw.githubusercontent.com/SpiderLabs/ModSecurity/v3/master/modsecurity.conf-recommended
+    dest: /etc/nginx/modsec/modsecurity.conf
+    mode: '0644'
+  tags: nginxcfg
+
+- name: Download unicode.mapping for ModSecurity
+  get_url:
+    url: https://raw.githubusercontent.com/SpiderLabs/ModSecurity/v3/master/unicode.mapping
+    dest: /etc/nginx/modsec/unicode.mapping
+    mode: '0644'
+  tags: nginxcfg
+
+# --- 16. Включаем строгий режим (SecRuleEngine On) ---
+- name: Set SecRuleEngine to On in modsecurity.conf
+  replace:
+    path: /etc/nginx/modsec/modsecurity.conf
+    regexp: '^SecRuleEngine\s+\w+'
+    replace: 'SecRuleEngine On'
+  tags: nginxcfg
+
+# --- 17. Клонируем и настраиваем OWASP CRS ---
+- name: Clone OWASP CRS
+  git:
+    repo: "https://github.com/coreruleset/coreruleset.git"
+    dest: /etc/nginx/modsec/owasp-crs
+    depth: 1
+  tags: nginxcfg
+
+- name: Copy crs-setup.conf.example as crs-setup.conf
+  copy:
+    src: /etc/nginx/modsec/owasp-crs/crs-setup.conf.example
+    dest: /etc/nginx/modsec/owasp-crs/crs-setup.conf
+    remote_src: yes
+  tags: nginxcfg
+
+- name: Include OWASP CRS in modsecurity.conf
+  blockinfile:
+    path: /etc/nginx/modsec/modsecurity.conf
+    block: |
+      Include /etc/nginx/modsec/owasp-crs/crs-setup.conf
+      Include /etc/nginx/modsec/owasp-crs/rules/*.conf
+    marker: "# {mark} ANSIBLE OWASP CRS"
+    insertafter: EOF
+  tags: nginxcfg
+
+# --- 18. Добавляем geoip2-конфиг в блок http{} nginx.conf ---
+- name: Insert GeoIP2 config in nginx.conf
+  blockinfile:
+    path: /etc/nginx/nginx.conf
+    block: |
+      geoip2 /var/lib/GeoIP/GeoLite2-Country.mmdb {
+          $geoip2_data_country_code country iso_code;
+      }
+      geoip2 /var/lib/GeoIP/GeoLite2-City.mmdb {
+          $geoip2_data_city_name      city names en;
+          $geoip2_data_region_name    subdivisions 0 names en;
+          $geoip2_latitude location latitude;
+          $geoip2_longitude location longitude;
+          $geoip2_postal_code  postal code;
+          $geoip2_timezone     location time_zone;
+      }
+    marker: "# {mark} ANSIBLE GEOIP2 BLOCK"
+    insertafter: "http {"
+  tags: nginxcfg
+
+# --- 19. Копируем конфиг для виртуального хоста (laravel.lab.local) ---
+- name: Copy laravel.conf into sites-available
+  copy:
+     src: /mnt/d/s_dev_ops/ansible-lab/project-root-ngx-modules/files/laravel.lab.local.conf
+     dest: /etc/nginx/sites-available/laravel.lab.local.conf
+     owner: root
+     group: root
+     mode: '0644'
+  tags: nginxcfg
+
+# --- 20. Отключаем дефолтный сайт, включаем новый ---
+- name: Remove default symlink if exists
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  tags: nginxcfg
+
+- name: Enable symlink laravel
+  file:
+    src: /etc/nginx/sites-available/laravel.lab.local.conf
+    dest: /etc/nginx/sites-enabled/laravel.lab.local.conf
+    state: link
+  tags: nginxcfg
+
+# --- 21. Добавляем заголовки GeoIP2 и правила modsecurity в location / ---
+- name: Insert GeoIP2 headers in location / of laravel.lab.local.conf
+  blockinfile:
+    path: /etc/nginx/sites-available/laravel.lab.local.conf
+    marker: "# {mark} ANSIBLE GEOIP2 HEADERS"
+    block: |
+      modsecurity on;
+      modsecurity_rules_file /etc/nginx/modsec/modsecurity.conf;
+      add_header X-Country-Code $geoip2_data_country_code;
+      add_header X-City $geoip2_data_city_name;
+      add_header X-Region $geoip2_data_region_name;
+      add_header X-Latitude $geoip2_latitude;
+      add_header X-Longitude $geoip2_longitude;
+      add_header X-Postal $geoip2_postal_code;
+      add_header X-Timezone $geoip2_timezone;
+    insertafter: 'location / {'
+  tags: nginxcfg
+
+# --- 22. Проверяем валидность конфигурации и перезапускаем nginx ---
+- name: Test nginx config
+  command: nginx -t
+  register: nginx_test
+  changed_when: false
+  ignore_errors: true
+  tags: nginxcfg
+
+- name: Fail if nginx config test failed
+  fail:
+    msg: "nginx -t failed! Check previous output."
+  when: nginx_test.rc != 0
+  tags: nginxcfg
+
+- name: Reload nginx
+  service:
+    name: nginx
+    state: reloaded
+  tags: nginxcfg

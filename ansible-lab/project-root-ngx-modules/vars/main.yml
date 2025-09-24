@@ -1,5 +1,0 @@
-nginx_version: "1.29.0"
-nginx_src_url: "https://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
-nginx_src_dir: "/usr/local/src/nginx-{{ nginx_version }}"
-nginx_prefix: "/etc/nginx"
-nginx_user: "www-data"

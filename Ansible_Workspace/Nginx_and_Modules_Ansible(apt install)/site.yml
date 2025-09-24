@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: yes
+  roles:
+    - nginx_install
+    - modsecurity_install
+    - geoip2_install
+    - nginx_configure
