@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cache
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+      tier: cache
+  template:
+    metadata:
+      labels:
+        app: redis
+        tier: cache
+  spec:                       # Error 1: Same level as metadata      
+    containers:
+    - name: redis-cache
+      image: redis:7-alpine
+      command: ["redis-server", "/usr/local/etc/redis/redis.conf"] # missed command
+      ports:
+      - containerPort: 6379
+      resources:
+        requests:
+          memory: "128Mi"
+          cpu: "100m"
+        limits:
+          memory: "256Mi"
+          cpu: "200m"
+      volumeMounts:
+      - name: config-volume
+        mountPath: /usr/local/etc/redis/redis.conf
+        subPath: redis.conf
+      livenessProbe:
+        tcpSocket:
+#          path: /           # ← WRONG: tcpSocket only needs port
+          port: 6379
+        initialDelaySeconds: 10
+        periodSeconds: 4
+      readinessProbe:
+        tcpSocket:
+#          path: /              # ← WRONG: tcpSocket only needs port
+          port: 6379
+        initialDelaySeconds: 10
+        periodSeconds: 5
+      volumes:
+      - name: config-volume
+        configMap:
+          name: redis-config

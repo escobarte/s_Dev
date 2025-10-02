@@ -1,0 +1,19 @@
+apiVersion: apps/v1              # Different API for Deployments
+kind: Deployment                 # Changed from Pod
+metadata:
+  name: nginx-deploy                     # Your deployment name
+spec:
+  replicas: ____                 # Number you want
+  selector:                      # How deployment finds its pods
+    matchLabels:
+      ____: ____                 # Label to match
+  template:                      # Pod template (your original pod goes here)
+    metadata:
+      labels:
+        ____: ____               # Same label as selector above
+    spec:
+      containers:                # Your container spec from the Pod
+      - name: ____
+        image: ____
+        ports:
+        - containerPort: ____

@@ -1,0 +1,53 @@
+apiVersion:
+kind:
+metadata:
+  ...
+  ...
+spec:
+  replicas:
+  selector:
+    matchLabels:
+      ..
+      ..
+  template:
+    metadata:
+      ..
+      ..
+  spec:
+    containers:
+    - ..
+      ..
+    ports:
+    - ..
+    resources:
+      requests:
+        ..
+        ..
+      limits:
+    volumeMounts:
+    - ..
+      mountPath:
+      subPath:
+    env:
+    - name:
+      valueFrom:
+        secretKeyRef:
+          name:
+          key:
+    livenessProbe:
+      ..
+        ..
+      initialDelaySeconds:
+      periodSeconds:
+    readinessProbe:
+      ..
+        ..
+      initialDelaySeconds:
+      periodSeconds:
+    volumes:
+    - name:
+      configMap:
+        name:  
+
+      
+      

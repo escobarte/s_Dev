@@ -1,0 +1,14 @@
+apiVersion: v1                    # ← YOU MISSED: "v1" (you wrote "apiVersion:" only)
+kind: Service
+metadata:
+  name: mongo-service
+  namespace: production
+spec:
+  selector:                       # ← YOU MISSED: "selector:" wrapper
+    matchLabels:                  # ← YOU HAD: matchLabels directly under spec (wrong level)
+      app: mongodb                # ← YOU WROTE: "mongo" but deployment uses "mongodb"
+      tier: database
+  ports:
+  - port: 27017
+    targetPort: 27017
+  type: ClusterIP

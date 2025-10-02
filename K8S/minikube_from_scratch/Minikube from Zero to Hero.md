@@ -169,7 +169,7 @@ kubectl get services
 kubectl get replicasets
 ```
 
-**Createing Replica set Called Deployment**
+**Creating Replica set Called Deployment**
 ```sh
 kubectl create deployment web-app-02 --image=nginx --replicas=3
 kubectl get deployment
@@ -274,3 +274,18 @@ kubectl apply -f deploy-nginx-with-storage.yaml # deploy 2 pods
 kubectl get pods --show-labels
 kubectl get deployments
 ```
+
+**Testing Persistant Storage**
+```sh
+#Entering into pod
+kubectl port-forward --address 0.0.0.0 deployments/web-app-03 8085:80
+echo "<h1>This data should survive pod restart!</h1>" > /usr/share/nginx/html/index.html
+echo "Created at: $(date)" >> /usr/share/nginx/html/index.html
+exit
+# 3. Create service to access it
+kubectl expose deployment web-app-03 --port=80 --type=NodePort
+# Delete pod
+kubectl delete pod web-app-03-86d8946b4d-8cps5
+#Information remained. All good
+
+

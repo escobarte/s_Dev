@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: production
+spec:
+  replicas: 1
+  selector:                       # ← YOU MISSED: "selector:" before matchLabels
+    matchLabels:
+      app: mongodb
+      tier: database
+  template:
+    metadata:
+      labels:                     # ← YOU MISSED: "labels:" wrapper
+        app: mongodb              # ← YOU HAD: app directly under metadata (wrong)
+        tier: database
+    spec:                         # ← YOUR INDENTATION: spec was at wrong level
+      containers:
+      - name: mongodb
+        image: mongo:7
+        ports:                    # ← YOUR INDENTATION: ports was not aligned with name/image
+        - containerPort: 27017
+        resources:                # ← YOUR INDENTATION: resources misaligned
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/mongo/mongodb.conf
+          subPath: mongodb.conf
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secrets
+              key: root-username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secrets
+              key: root-password
+        livenessProbe:
+          exec:
+            command: ["mongosh", "--eval", "db.runCommand('ping').ok", "--quiet"]
+            # ← YOU HAD: ["mongosh" "--eval" ...] - missing commas between array elements
+            # ← YOU HAD: db.runCommand("ping") - wrong quotes (needs single quotes inside double)
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:                    # ← YOUR INDENTATION: volumes was inside containers block
+      - name: config-volume       # ← CORRECT PLACEMENT: same level as containers
+        configMap:
+          name: mongo-config
