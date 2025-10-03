@@ -1,0 +1,15 @@
+minikube status
+kubectl get pods -A
+kubectl getg nodes
+kubectl config view
+kubectl config current-context
+docker ps | grep minikube # Проверим, использует ли minikube Docker
+docker system df # Проверяем, что Docker чист (если используешь Docker)
+# Проверяем, что нет остатков пакетов k8s
+dpkg -l | grep -E "kube|k8s"     # для Debian/Ubuntu
+rpm -qa | grep -E "kube|k8s"      # для RHEL/CentOS
+wchich kubectl
+whicth minikube
+ps aux | grep minikube
+-----------------------
+uname -a
