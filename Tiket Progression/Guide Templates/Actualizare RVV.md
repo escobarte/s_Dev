@@ -21,6 +21,16 @@ Step 2: ssh --> 10.100.10.11
 Step 3: executare comenzii scp de pe server 10.100.101.10 pe local
 Step 4: rularea scriptului
 
+```shell
+scp root@10.100.101.10:/opt/wildfly/standalone/deployments/vwr-ear.ear /tmp/
+ll /opt/wildfly/standalone/deployments/
+ll /tmp/
+sudo ./deploy.sh #From root run the script
+CTRL + C
+```
+
+
+
 ## Troubleshooting/FAQs:
 
 FAQ:

@@ -1,0 +1,7 @@
+# This is how to do shorter prefix till the $
+```sh
+PROMPT_DIRTRIM=2
+export PS1="\[\033[01;33m\]\W\[\033[00m\]$ "
+
+source ~/.bashrc
+```

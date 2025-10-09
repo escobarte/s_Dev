@@ -9,6 +9,7 @@
 
 **DO: 25/09/2025**
 *For Beginners - Start with These 8:*
+
 ```
 Pod - The basic unit
 Deployment - Run your apps
@@ -21,12 +22,14 @@ Ingress - HTTP routing
 ```
 
 **So what i did:**
+
 ```
 POD
 DEPLOYMENT
 PVC = Persistent Volumes
 YAML Manifests 
 ```
+
 *Not undestood*
 **Services ?**
 
@@ -34,6 +37,7 @@ https://claude.ai/chat/ce16b44b-7926-4007-8197-fd651e66d766
 
 **01/10/2025**
 **Review of my knowledge, and what TO DO next**
+
 ```
 What's Next - Brief Overview
 Based on our original roadmap, here's what remains:
@@ -85,8 +89,8 @@ Managing complex applications
 Chart repositories
 ```
 
-
 **Also, Hones Assessment**
+
 ```
 Honest Assessment: 6/10
 Here's the breakdown:
@@ -120,4 +124,38 @@ Always validate with kubectl apply --dry-run=client
 Build muscle memory for indentation patterns
 
 You're progressing well, but you need more repetition to eliminate the syntax errors. Keep practicing - the concepts are there, execution will follow.
-``` 
+```
+
+## 06/10/2025
+
+```
+Excellent! Ingress is now working with path-based routing and URL rewriting.
+Ingress Summary
+You've learned:
+
+✅ Host-based routing (different domains → different services)
+✅ Path-based routing (same domain, different paths → different services)
+✅ URL rewriting (strip path prefixes)
+
+
+What's Next in Your Kubernetes Journey
+We've covered:
+
+✅ Core concepts (Pods, Deployments, Services)
+✅ Storage (PV, PVC, ConfigMaps, Secrets)
+✅ Namespaces
+✅ Advanced YAML (resources, probes, multi-container)
+✅ Production patterns
+✅ Ingress
+
+
+```
+
+**Remaining topics:**
+
+```shell
+StatefulSets (databases with stable identities)
+Jobs & CronJobs (one-time and scheduled tasks)
+Monitoring & debugging techniques
+Helm basics
+```
