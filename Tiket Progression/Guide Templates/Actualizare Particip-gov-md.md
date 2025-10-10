@@ -12,8 +12,6 @@
 10.25.15.3 - Prod    (particip)
 10.25.15.2 - Nginx
 
-
-
 Create SNAPSHOTS first.
 
 ### Steps:

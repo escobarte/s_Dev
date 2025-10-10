@@ -29,8 +29,6 @@ sudo ./deploy.sh #From root run the script
 CTRL + C
 ```
 
-
-
 ## Troubleshooting/FAQs:
 
 FAQ:
