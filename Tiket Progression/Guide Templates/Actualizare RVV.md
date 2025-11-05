@@ -23,8 +23,8 @@ Step 4: rularea scriptului
 
 ```shell
 scp root@10.100.101.10:/opt/wildfly/standalone/deployments/vwr-ear.ear /tmp/
-ll /opt/wildfly/standalone/deployments/
 ll /tmp/
+sudo -i
 sudo ./deploy.sh #From root run the script
 CTRL + C
 ```
