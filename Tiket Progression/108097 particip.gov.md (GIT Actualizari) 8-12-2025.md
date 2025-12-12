@@ -6,6 +6,8 @@ Server Structur:
 10.25.15.3 = admin-particip.gov.md
 10.25.15.4 = newparticip.gov.md
 
+ pg_dump -U participadmin -h localhost participadmin > dump_participadmin_$(date +%Y%m%d_%H%M%S).sql
+
 Database on 10.25.15.3 Pentru Ambele (admin+new)
 
 
@@ -22,20 +24,26 @@ CS-PARTICIP-01DB01P
 
 ## Step: 2
 **Dump DATABSE**
-```sh
+```
 ssh to admin-particip.gov.md.conf == 10.25.15.4 
 
 Login: ssh tenantadmin@10.25.15.4
 Password: [[ Temp pass from descriptions ]]
+
 << To find DB >>
+
 cd /DATA/participadmin.gov.md/htdocs
 ll
 cat .env | grep DB ( to find login and password )
+
 # Being as root go to Back folders and do DUMP database
-/DATA/participadmin.gov.md/backups
+cd /DATA/participadmin.gov.md/backups
+
 pg_dump -U participadmin -h localhost participadmin > dump_participadmin_$(date +%Y%m%d_%H%M%S).sql
+
 # Intro password that you found in .env
 # Check if dump passed successfully 
+
 ls -alht 
 # -rw-r--r--  1 root     root     615M Dec  8 08:05 dump_participadmin_20251208_080515.sql
 ```

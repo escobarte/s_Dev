@@ -27,3 +27,7 @@ am fixat cu MPASS logarea
 4. VERIFY:
    - owner for changed files
    - owner /DATA/rsal.gov.md/htdocs/storage/report
+
+
+
+  s
