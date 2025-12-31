@@ -1,0 +1,14 @@
+---
+- name: Hardware Report
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Display specific server specs
+      debug:
+        msg: 
+          - "Hostname: {{ ansible_facts['hostname'] }}"
+          - "OS:       {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+          - "CPU:      {{ ansible_facts['processor_vcpus'] }} cores"
+          - "RAM Total: {{ ansible_facts['memtotal_mb'] }} MB"
+          - "RAM Free:  {{ ansible_facts['memfree_mb'] }} MB"
+          - "Primary IP: {{ ansible_facts['default_ipv4']['address'] }}"

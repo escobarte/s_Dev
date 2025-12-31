@@ -1,0 +1,81 @@
+
+PLAY [Hardware Report] *********************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [app02]
+ok: [app03]
+ok: [prx01]
+ok: [prx02]
+ok: [db01]
+ok: [app01]
+
+TASK [Display specific server specs] *******************************************
+ok: [prx01] => {
+    "msg": [
+        "Hostname: sas-lab-prx01",
+        "OS:       Ubuntu 24.04",
+        "CPU:      2 cores",
+        "RAM Total: 1919 MB",
+        "RAM Free:  454 MB",
+        "Primary IP: 10.100.93.3"
+    ]
+}
+ok: [prx02] => {
+    "msg": [
+        "Hostname: sas-lab-prx02",
+        "OS:       Ubuntu 24.04",
+        "CPU:      2 cores",
+        "RAM Total: 1919 MB",
+        "RAM Free:  577 MB",
+        "Primary IP: 10.100.93.4"
+    ]
+}
+ok: [app01] => {
+    "msg": [
+        "Hostname: sas-lab-app01",
+        "OS:       Ubuntu 24.04",
+        "CPU:      4 cores",
+        "RAM Total: 3868 MB",
+        "RAM Free:  187 MB",
+        "Primary IP: 10.100.93.5"
+    ]
+}
+ok: [app02] => {
+    "msg": [
+        "Hostname: sas-lab-app02",
+        "OS:       Ubuntu 24.04",
+        "CPU:      4 cores",
+        "RAM Total: 3868 MB",
+        "RAM Free:  1329 MB",
+        "Primary IP: 10.100.93.6"
+    ]
+}
+ok: [app03] => {
+    "msg": [
+        "Hostname: sas-lab-app03",
+        "OS:       Ubuntu 24.04",
+        "CPU:      4 cores",
+        "RAM Total: 3868 MB",
+        "RAM Free:  465 MB",
+        "Primary IP: 10.100.93.7"
+    ]
+}
+ok: [db01] => {
+    "msg": [
+        "Hostname: sas-lab-db01",
+        "OS:       Ubuntu 24.04",
+        "CPU:      2 cores",
+        "RAM Total: 1919 MB",
+        "RAM Free:  92 MB",
+        "Primary IP: 10.100.93.8"
+    ]
+}
+
+PLAY RECAP *********************************************************************
+app01                      : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+app02                      : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+app03                      : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+db01                       : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+prx01                      : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+prx02                      : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

@@ -1,0 +1,45 @@
+To completely remove Docker from your Ubuntu server so that no trace of its images, containers, or configurations remains, you need to purge the packages and manually delete the data directories it leaves behind.
+
+1. Stop and Clean Up Docker Resources
+Before uninstalling the software, wipe out all active resources (containers, networks, and images) to ensure no processes are left hanging.
+
+Bash
+
+# Stop all running containers
+docker stop $(docker ps -aq) 2>/dev/null
+
+# Remove all containers, images, and volumes
+docker system prune -a --volumes -f
+2. Uninstall Docker Packages
+This step removes the binaries and the core service files. Using purge instead of remove also deletes the basic configuration files.
+
+
+Bash
+
+sudo apt-get purge -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras
+3. Delete Leftover Directories
+Docker stores the bulk of its data in specific system folders that are not removed by the apt purge command. You must delete these manually:
+
+Bash
+
+# Remove the main data directory (images, layers, etc.)
+sudo rm -rf /var/lib/docker
+sudo rm -rf /var/lib/containerd
+
+# Remove configuration files
+sudo rm -rf /etc/docker
+sudo rm -rf ~/.docker
+
+# Remove the Docker group
+sudo groupdel docker
+4. Clean Up Repositories and Keys
+To ensure a completely "factory-clean" state (important if you plan to reinstall a different version later), remove the source lists and GPG keys:
+
+Bash
+
+sudo rm /etc/apt/sources.list.d/docker.list
+sudo rm /etc/apt/keyrings/docker.asc
+sudo apt-get autoremove -y
+sudo apt-get autoclean
+How to Verify it's Gone
+Run docker --version. If the system responds with command not found, the removal was successful. Because your service was previously masked, you might also want to run ls /etc/systemd/system/docker.service to ensure the mask link is also gone.

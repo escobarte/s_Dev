@@ -41,6 +41,13 @@ cd /DATA/participadmin.gov.md/backups
 
 pg_dump -U participadmin -h localhost participadmin > dump_participadmin_$(date +%Y%m%d_%H%M%S).sql
 
+
+DB_CONNECTION="pgsql"
+DB_HOST="localhost"
+DB_DATABASE="participadmin"
+DB_USERNAME="participadmin"
+DB_PASSWORD="PxRgspc3ROyrJB_Q"
+
 # Intro password that you found in .env
 # Check if dump passed successfully 
 
@@ -65,6 +72,9 @@ root@01PARTICIP02:/DATA/participadmin.gov.md/htdocs# chown -R www-data:www-data 
 root@01PARTICIP02:/DATA/participadmin.gov.md/htdocs# chown -R www-data:www-data /DATA/participadmin.gov.md/htdocs/database/
 root@01PARTICIP02:/DATA/participadmin.gov.md/htdocs# chown -R www-data:www-data /DATA/participadmin.gov.md/htdocs/app/
 ```
+
+chmod -R 777 /DATA/participadmin.gov.md/htdocs/public/particip/
+
 
 ## Step: 4
 **php artisan migrate**
