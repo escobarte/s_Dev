@@ -1,3 +1,5 @@
+# Issue with Rancher Agent
+
 systemctl status rancher-system-agent
 journalctl -u rancher-stystem-agent -n 50
 journalctl status k3s
@@ -11,7 +13,7 @@ iptables -L -n -v | grep 'DROP'
 journalctl -u  rancher-system-agent.service -n 100 --no-pager | awk '{$1=$2=$3=$4=$5=$6=$7=$8=""; print $0}'
 
 
---- The Problem: etcd cluster communication failure ---
+## --- The Problem: etcd cluster communication failure ---
 Key Evidence:
 >>etcd is listening only on 10.100.93.4 (your failing node)
 >>Firewall only allows 10.100.93.6 - but etcd needs to talk to ALL other nodes (93.7, 93.8 too!)
@@ -24,13 +26,13 @@ iptables -I INPUT -p udp -s 10.100.93.7 --dport 8472 -j ACCEPT
 iptables -I INPUT -p tcp -s 10.100.93.7 --dport 6443 -j ACCEPT
 iptables -I INPUT -p tcp -s 10.100.93.7 --dport 10250 -j ACCEPT
 
-# Allow etcd communication from 93.8
+## Allow etcd communication from 93.8
 iptables -I INPUT -p tcp -s 10.100.93.8 --dport 2379:2380 -j ACCEPT
 iptables -I INPUT -p udp -s 10.100.93.8 --dport 8472 -j ACCEPT
 iptables -I INPUT -p tcp -s 10.100.93.8 --dport 6443 -j ACCEPT
 iptables -I INPUT -p tcp -s 10.100.93.8 --dport 10250 -j ACCEPT
 
-# Save rules
+## Save rules
 iptables-save > /etc/iptables/rules.v4
 
 systemctl restart k3s

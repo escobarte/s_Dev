@@ -1,0 +1,29 @@
+# Database Depricated How To
+
+##Copy text to clipboard
+	apt install xlip -y
+	xclip -selection clipboard < filename.txt
+		#Example
+	xlicp -selection clipboard < ~/.bashrc
+
+## Installing mysql
+sudo apt update && sudo apt install mysql-server
+mysql -V
+systemctl start && systemctl status mysq
+apt install 7zip
+7z x filename.7z
+>> Enter to mysql:
+mysql
+SHOW DATABASES;
+CREATE DATABASE TESTDB;
+DROP DATABASE TESTDB;
+exit;
+>>
+mysql TESTDB < mec_edocs_17_12.sql
+#(ERROR 1101 (42000) at line 5741369: BLOB, TEXT, GEOMETRY or JSON column 'content' can't have a default value)
+## How to solve: Go to dump file, search by line, and remove (DEFAULT '0') should remain Only: `content` text,
+vim dumpfile.sql
+#being in vim
+:set number
+:5741369
+#After, import was successfully. 

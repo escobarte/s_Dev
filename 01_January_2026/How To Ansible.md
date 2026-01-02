@@ -74,8 +74,3 @@ vim collec_info.yaml
 ----
 
 ansible-playbook -i hosts_lab.yaml collect_info.yaml #will show info into terminal
-
-
-
-
-
